@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 
-type SquareState = "" | "X" | "O";
-type TurnPlayer = 1 | 2;
-
 
 export function isWinner(boardState: SquareState[]): boolean {
 	const winningForm = [
@@ -15,20 +12,33 @@ export function isWinner(boardState: SquareState[]): boolean {
 		[0, 3, 6], [1, 4, 7], [2, 5, 8],
 		[0, 4, 8], [2, 4, 6]
 	];
-
+	
 	for (const [a, b, c] of winningForm) {		
 		if (boardState[a] 
 			&& boardState[a] === boardState[b] 
 			&& boardState[a] === boardState[c]) {
 				return true;
+			}
 		}
-	}
-
+		
 	return false;
 }
 
+function index1DTo2D(index: number, boardSize: number) : Array<number> {
+	return [index / boardSize, index % boardSize]
+}
+
+function index2DTo1D(indexes: Array<number>, boardSize: number): number {
+	const [row, col] = indexes;
+	return row * boardSize + col;
+}
+
+type SquareState = "" | "X" | "O";
+type TurnPlayer = 1 | 2;
+
 function Game() {
-	const [boardState, setBoardState] = useState<SquareState[]>(Array(9).fill(""));
+	const [boardSize, setBoardSize] = useState<number>(3);
+	const [boardState, setBoardState] = useState<SquareState[]>(Array(boardSize * boardSize).fill(""));
 	const [turn, setTurn] = useState<TurnPlayer>(2);
 	// const [declarations, setDeclarations] = useState("");
 	let declarations: string | null = null;
@@ -46,7 +56,9 @@ function Game() {
 			else {
 				tempBoard[index] = "X";
 			}
+
 			setBoardState(tempBoard);
+			// boardState = tempBoard;
 			
 			let nextTurn: TurnPlayer = (turn === 1) ? 2 : 1;
 			setTurn(nextTurn);
@@ -57,15 +69,67 @@ function Game() {
 		declarations = "The winner is: Player " + turn;
 	}
 
+
+	function resetGame() {
+		setBoardState(Array(boardSize * boardSize).fill(""));
+		setTurn(1)
+	}
+
+	let boardRender = [...Array(boardSize).keys()].map((i) => {
+		return (
+			<div key={i} className="divide-x flex flex-row">
+				{
+					[...Array(boardSize).keys()].map((j) => {
+						let squareId = index2DTo1D([i, j], boardSize);
+						return (
+							<Square key={squareId} 
+								value={boardState[squareId]} 
+								onClick={handleClick(squareId)}/>
+						)
+					})
+				}
+			</div>
+		)
+	})
+
+	function changeBoardSize(size: number) {
+		if (Number.isNaN(size) || (size > 10 || size < 3) ) {
+			return;
+		}
+
+		setBoardSize(size);
+		setBoardState(Array(boardSize * boardSize).fill(""));
+	}
+
 	return (
 		<div className="mt-4">
 			<h1>
 				Tic-tac-toe
 			</h1>
 			{declarations && <b>{declarations}</b>}
+			<div>
+				<h2>Config</h2>
+				<div>
+					<b>Board size</b>
+					<input id="boardSize" value={boardSize} list="sizeOptions"
+						type="number"
+						onChange={(e) => {changeBoardSize(Number(e.target.value))}}/>
+					<datalist id="sizeOptions">
+						<option value="3"></option>
+						<option value="4"></option>
+						<option value="5"></option>
+						<option value="6"></option>
+					</datalist>
+				</div>
+				<div>
+					<b>Win length</b>
+					<input type="text" id="win" value="" />
+					<datalist></datalist>
+				</div>
+			</div>
 			<Board boardState={boardState}>
 				<>
-					<div className="divide-x flex flex-row">
+					{/* <div className="divide-x flex flex-row">
 						<Square value={boardState[0]} onClick={handleClick(0)}/>
 						<Square value={boardState[1]} onClick={handleClick(1)}/>
 						<Square value={boardState[2]} onClick={handleClick(2)}/>
@@ -79,9 +143,12 @@ function Game() {
 						<Square value={boardState[6]} onClick={handleClick(6)}/>
 						<Square value={boardState[7]} onClick={handleClick(7)}/>
 						<Square value={boardState[8]} onClick={handleClick(8)}/>
-					</div>
+					</div> */}
+					{boardRender}
 				</>
 			</Board>
+
+			<button onClick={resetGame}>Reset</button>
 		</div>
 	)
 }
