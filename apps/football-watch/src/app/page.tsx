@@ -1,4 +1,4 @@
-import SocoliveList from './socolive-list';
+import SocoliveList from './socolive-list-client';
 import {Suspense} from "react";
 import VeboList from './vebo-list';
 

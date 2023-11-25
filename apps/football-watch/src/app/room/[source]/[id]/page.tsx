@@ -1,7 +1,7 @@
 import {Suspense} from "react";
 import { notFound } from "next/navigation";
 import {RoomInfo, RoomDetailStatus, Stream} from "../../../socolive-definitions";
-import SocoliveRoom from "./socolive-room";
+import SocoliveRoom from "./socolive-room-client";
 import VeboRoom from "./vebo-room";
 
 export default async function Page({params}: Readonly<{params: {id: string, source: string}}>) {

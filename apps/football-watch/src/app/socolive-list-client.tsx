@@ -1,45 +1,36 @@
+'use client';
+
 import Image from 'next/image';
 import { AllRoomsStatus, RoomInfo } from './socolive-definitions';
 import Link from 'next/link';
-import {cookies} from 'next/headers';
+import { cookies } from 'next/headers';
+import { useState, useEffect } from "react";
 
-export default async function SocoliveList() {
+export default function SocoliveList() {
     console.log("SocoliveList rendering...");
-    
-    const cookieStore = cookies();
-    // Todo: This component should be used with ErrorBoundary
+    const [jsonValue, setJsonValue] = useState<AllRoomsStatus | null>(null)
 
-    let jsonValue: AllRoomsStatus;
-    try {
-        const response = await fetch("https://json.vnres.co/all_live_rooms.json", {
-            next: {revalidate: 60}
-        });
-        console.log(response);
-        if (response.ok) {
-            jsonValue = await processJSON(response);
-        }
-        else {
-            console.log("Response not ok");
-            console.log(response);
-            const responseText = await response.text();
-            throw new Error(responseText);
-        }
-    }
-    catch (error) {
-        console.error(error);
-        throw error;
-    }
+    useEffect(() => {
+        fetch("/api/all-rooms", {
+            next: { revalidate: 60 }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error("Fetch not successful");
+            } 
+        }).then((json) => {
+            if (json.code !== 200) {
+                throw new Error("There's an error: " + json.code + " - " + json.message);
+            }
+            else {
+                setJsonValue(json);
+            }
+        })
+    }, []);
 
     const roomInfo = jsonValue?.data.hot ?? [];
-    
-    // (data
-    //     .sort((a, b) => (
-    //             (a as any)["anchor"]["nickName"].localeCompare((b as any)["anchor"]["nickName"])
-    //         )
-    //     ).forEach((v: Object) => {
-    //         console.log((v as any)["anchor"]["nickName"]);
-    //     })
-    // );
 
     // Image can't have different hosts without config
     // https://nextjs.org/docs/messages/next-image-unconfigured-host
@@ -54,16 +45,16 @@ export default async function SocoliveList() {
                 <p><b>{room.title}</b></p>
                 <button><Link href={`/room/socolive/${room.roomNum}`}>Watch Now</Link></button>
             </div>
-            )
-        });
+        )
+    });
 
     console.log("SocoliveList rendered complete!!!");
     return (
         <div>
             <h2>List BLV Socolive đang live</h2>
-            {(roomInfo.length > 0) 
-            ? (dataRendered) 
-            : (<p>Room can not be fetched, please check logs.</p>)}
+            {(roomInfo.length > 0)
+                ? (dataRendered)
+                : (<p>Room can not be fetched, please check logs.</p>)}
         </div>
     )
 }
@@ -78,5 +69,5 @@ export default async function SocoliveList() {
 async function processJSON(response: Response) {
     const txt = await response.text();
     const jsonText = txt.slice(15, -1);
-    return JSON.parse(jsonText); 
+    return JSON.parse(jsonText);
 }

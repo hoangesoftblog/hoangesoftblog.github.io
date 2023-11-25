@@ -1,4 +1,5 @@
-import { RoomDetailStatus } from "../../socolive-definitions";
+import { RoomDetailStatus } from "../../definitions";
+import { cookies } from "next/headers";
 
 // export const dynamic = 'force-dynamic' // defaults to force-static
 
@@ -8,25 +9,31 @@ export async function GET(request: Request) {
     const id = searchParams.get('id');
     console.log("API - Getting Room Details - id: " + id);
 
+    const cookieStore = cookies();
+
     // console.log(arguments);
 
-    console.log('Fake limit 3s...');
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    console.log('Fake limit complete...');
+    // console.log('Fake limit 3s...');
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    // console.log('Fake limit complete...');
 
     let res;
     try {
         res = await fetch(`https://json.vnres.co/room/${id}/detail.json`, {
-            next: {revalidate: 60},
+            next: {revalidate: 0},
         });
+        console.log("Room Detail - ID:", id);
+        console.log(res);
     }
     catch (error) {
+        console.error("Room Detail - ID:", id);
         console.error("Fetch error: " + error);
         console.error(error);
 
     }
 
     if (!(res?.ok)) {
+        console.error("Room Detail - ID:", id);
         console.error("Fetch error: ", res?.status);
         console.error(res?.statusText);
 
@@ -43,6 +50,9 @@ export async function GET(request: Request) {
         // let tempRes = new Response({jsonValue.code, jsonValue.msg});
         return Response.error();
     }
+
+    console.error("Room Detail - ID:", id);
+    console.log("Finishing");
 
     return Response.json(jsonValue)
 }

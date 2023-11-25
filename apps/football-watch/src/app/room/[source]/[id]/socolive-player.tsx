@@ -12,6 +12,7 @@ export default function SocolivePlayer({ data }: { data: RoomStream }) {
     // and update each time user re-select the quality option.
     // 2) The videoUrl is not in the same origin -> stuck "strict-origin-when-cross-origin"
     const [videoUrl, setVideoUrl] = useState<string>("");
+    const [another, setAnother] = useState("");
     const [previousUrl, setPreviousUrl] = useState<string>("");
 
     // let videoComponent: ReactPlayer | undefined = undefined;
@@ -42,6 +43,10 @@ export default function SocolivePlayer({ data }: { data: RoomStream }) {
                 }
                 wrapper={undefined}
             />}
+            <div>
+                <input className="border-2 border-black" type="text" value={another} onChange={(e) => {setAnother(e.target.value)}}/>
+                <button onClick={() => {setVideoUrl(another);}}>Apply</button>
+            </div>
             <p><b>Playing: </b> {videoUrl}</p>
             <div>
                 <button className="mr-4" onClick={handleClick(streams.m3u8)}>SD</button>
