@@ -1,8 +1,10 @@
 import Image from 'next/image';
 import { AllRoomsStatus, RoomInfo } from './socolive-definitions';
 import Link from 'next/link';
+import {cookies} from 'next/headers';
 
 export default async function SocoliveList() {
+    const cookieStore = cookies();
     // Todo: This component should be used with ErrorBoundary
     console.log("SocoliveList rendering...");
 
@@ -11,6 +13,7 @@ export default async function SocoliveList() {
         const response = await fetch("https://json.vnres.co/all_live_rooms.json", {
             next: {revalidate: 60}
         });
+        console.log(response);
         if (response.ok) {
             jsonValue = await processJSON(response);
         }
