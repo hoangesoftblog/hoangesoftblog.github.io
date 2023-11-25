@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     catch (error) {
         console.error("Fetch error: " + error);
         console.error(error);
-
+        
     }
 
     if (!(res?.ok)) {

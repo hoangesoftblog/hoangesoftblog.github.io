@@ -14,13 +14,19 @@ export default function SocolivePlayer({ data }: { data: RoomStream }) {
     const [videoUrl, setVideoUrl] = useState<string>("");
     const [previousUrl, setPreviousUrl] = useState<string>("");
 
-    let videoComponent: ReactPlayer | undefined = undefined;
+    // let videoComponent: ReactPlayer | undefined = undefined;
+    const {stream: streams} = data;
 
     useEffect(() => {
         setVideoUrl(data.stream.m3u8);
     }, [])
 
     // const videoUrl = prompt("Paste the m3u8 video url", "");
+    function handleClick(link: string) {
+        return function () {
+            setVideoUrl(link);
+        }
+    }
 
     // console.log(videoUrl);
 
@@ -38,8 +44,8 @@ export default function SocolivePlayer({ data }: { data: RoomStream }) {
             />}
             <p><b>Playing: </b> {videoUrl}</p>
             <div>
-                <button className="mr-4">SD</button>
-                <button>HD</button>
+                <button className="mr-4" onClick={handleClick(streams.m3u8)}>SD</button>
+                <button onClick={handleClick(streams.hdM3u8)}>HD</button>
             </div>
         </>
     )

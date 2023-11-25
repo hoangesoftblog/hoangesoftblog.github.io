@@ -18,10 +18,12 @@ export default async function VeboList() {
         else {
             console.log("Response not ok");
             console.log(response);
+            throw new Error(await response.text())
         }
     }
     catch (error) {
         console.error(error);
+        throw error;
     }
 
     const {data} = jsonValue!;

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import VeboPlayer from "./vebo-player";
 
 export default async function VeboRoom({ id, source }: { id: string, source: string }) {
-
+    console.log("Rendering VeboRoom - id: " + id + " - source: " + source);
     let detail: {data: MatchStatus, status: number};
 
     // // Match API 

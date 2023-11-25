@@ -9,6 +9,9 @@ function preloadUrl(url: string) {
 }
 
 export default function VeboPlayer({ data }: Readonly<{ data: MatchStatus }>) {
+    console.log("Rendering VeboPlayer");
+    console.log(JSON.stringify(data));
+
     const {id} = data;
     
     const [matchStream, setMatchStream] = useState<MatchStream | null>(null);
@@ -33,7 +36,6 @@ export default function VeboPlayer({ data }: Readonly<{ data: MatchStatus }>) {
             
             const {data: tempStream} = json;
 
-
             setMatchStream(tempStream);
 
             const tempUrl = tempStream.play_urls?.[0].url;
@@ -51,6 +53,7 @@ export default function VeboPlayer({ data }: Readonly<{ data: MatchStatus }>) {
         .catch(error => {
             // Maybe catching client-fetch error
             // Or catching errors from above statements
+            console.log(error);
             throw new Error(error);
         })
     }, []);

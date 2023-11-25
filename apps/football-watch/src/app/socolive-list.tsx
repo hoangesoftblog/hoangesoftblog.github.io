@@ -17,13 +17,16 @@ export default async function SocoliveList() {
         else {
             console.log("Response not ok");
             console.log(response);
+            const responseText = await response.text();
+            throw new Error(responseText);
         }
     }
     catch (error) {
         console.error(error);
+        throw error;
     }
 
-    const data = jsonValue!.data.hot;
+    const roomInfo = jsonValue?.data.hot ?? [];
     
     // (data
     //     .sort((a, b) => (
@@ -36,7 +39,7 @@ export default async function SocoliveList() {
 
     // Image can't have different hosts without config
     // https://nextjs.org/docs/messages/next-image-unconfigured-host
-    const dataRendered = data.map((room: RoomInfo) => {
+    const dataRendered = roomInfo.map((room: RoomInfo) => {
         const anchor = room.anchor;
         return (
             <div key={anchor.uid} className='mb-5'>
@@ -54,7 +57,9 @@ export default async function SocoliveList() {
     return (
         <div>
             <h2>List BLV Socolive đang live</h2>
-            {dataRendered}
+            {(roomInfo.length > 0) 
+            ? (dataRendered) 
+            : (<p>Room can not be fetched, please check logs.</p>)}
         </div>
     )
 }
