@@ -2,21 +2,21 @@ export interface AllRoomsStatus {
     code: number;
     msg: string;
     data: {
-        hot: Room[];
+        hot: RoomInfo[];
         // some HTML elements
         scroll: string;
     };
 }
 
 // TODO: Only know about success format, not failue one
-export interface RoomDetailsStatus {
+export interface RoomDetailStatus {
     code: number;
     msg: string;
     data: RoomStream;
 }
 
 export interface RoomStream {
-    room: Room;
+    room: RoomInfo;
     stream: Stream;
     // It's a string like this: "7, 3, 2, 5" 
     // -> not sure what it means
@@ -24,7 +24,7 @@ export interface RoomStream {
 };
 
 
-export interface Room {
+export interface RoomInfo {
     anchor: Anchor;
     roomNum: string;
     title: string;                  // Match title

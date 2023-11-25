@@ -1,5 +1,6 @@
-import FootballWatch from './football-watch';
+import SocoliveList from './socolive-list';
 import {Suspense} from "react";
+import VeboList from './vebo-list';
 
 
 export default async function Home() {
@@ -116,8 +117,12 @@ export default async function Home() {
     return (
         <main>
             <h1>Football Watch</h1>
-            <Suspense fallback={<div>Loading</div>}>
-                <FootballWatch />
+            <Suspense fallback={<div>Socolive Loading</div>}>
+                <SocoliveList />
+            </Suspense>
+            <br/>
+            <Suspense fallback={<div>Vebot.live Loading</div>}>
+                <VeboList />
             </Suspense>
         </main>
     )

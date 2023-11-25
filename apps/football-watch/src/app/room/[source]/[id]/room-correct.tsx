@@ -2,11 +2,11 @@
 
 import { notFound } from "next/navigation";
 import {useEffect, useState} from "react";
-import {RoomDetailsStatus, Room, Stream} from "../../definitions";
+import {RoomDetailStatus, RoomInfo, Stream} from "../../../socolive-definitions";
 
 // Todo: Add the match detail panel, using useEffect subscription
 export default function Room({id}: Readonly<{id: string}>) {
-    const [detail, setDetail] = useState<RoomDetailsStatus | undefined>(undefined);
+    const [detail, setDetail] = useState<RoomDetailStatus | undefined>(undefined);
 
     console.log("Rendering FootballWatch Room");
 
@@ -15,6 +15,9 @@ export default function Room({id}: Readonly<{id: string}>) {
         .then((response: Response) => {
             if (response.ok) {
                 return response.json();
+            }
+            else {
+                throw new Error("Fetch not successful");
             }
         })
         .then((json) => {
@@ -26,13 +29,15 @@ export default function Room({id}: Readonly<{id: string}>) {
             }
         })
         .catch(error => {
+            // Maybe catching client-fetch error
+            // Or catching errors from above statements
             throw new Error(error);
         })
     }, []);
 
     if (detail) {
         const data = detail.data;
-        const {room, stream: streams}: {room: Room, stream: Stream} = data;
+        const {room, stream: streams}: {room: RoomInfo, stream: Stream} = data;
         console.log(streams);
 
         return (

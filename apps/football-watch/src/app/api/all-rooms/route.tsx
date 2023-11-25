@@ -1,22 +1,14 @@
-import { RoomDetailStatus } from "../../socolive-definitions";
+import { AllRoomsStatus } from "../../socolive-definitions";
 
 // export const dynamic = 'force-dynamic' // defaults to force-static
 
 
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    console.log("API - Getting Room Details - id: " + id);
-
     // console.log(arguments);
-
-    console.log('Fake limit 3s...');
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    console.log('Fake limit complete...');
 
     let res;
     try {
-        res = await fetch(`https://json.vnres.co/room/${id}/detail.json`, {
+        res = await fetch(`https://json.vnres.co//all_live_rooms.json`, {
             next: {revalidate: 60},
         });
     }
@@ -36,8 +28,8 @@ export async function GET(request: Request) {
 
     // TODO: Write unit test check failure at this statement
     const txt = await res.text();               
-    const jsonTxt = txt.slice(7, -1);
-    const jsonValue: RoomDetailStatus = JSON.parse(jsonTxt);
+    const jsonTxt = txt.slice(15, -1);
+    const jsonValue: AllRoomsStatus = JSON.parse(jsonTxt);
 
     if (jsonValue.code !== 200) {
         // let tempRes = new Response({jsonValue.code, jsonValue.msg});
