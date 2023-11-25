@@ -1,4 +1,4 @@
-import { RoomDetailStatus } from "../../definitions";
+import { RoomDetailStatus } from "../../socolive-definitions";
 import { cookies } from "next/headers";
 
 // export const dynamic = 'force-dynamic' // defaults to force-static
