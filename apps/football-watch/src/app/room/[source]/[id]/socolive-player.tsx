@@ -1,13 +1,13 @@
 'use client';
 
 import { RoomStream } from "@/app/socolive-definitions";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import ReactPlayer from "react-player/file";
 
 type Quality = "SD" | "HD";
 
 // Todo: Add the match detail panel, using useEffect subscription
-export default function SocolivePlayer({data}: {data: RoomStream}) {
+export default function SocolivePlayer({ data }: { data: RoomStream }) {
     // 1) data is initial value from getting from server,
     // and update each time user re-select the quality option.
     // 2) The videoUrl is not in the same origin -> stuck "strict-origin-when-cross-origin"
@@ -19,7 +19,7 @@ export default function SocolivePlayer({data}: {data: RoomStream}) {
     useEffect(() => {
         setVideoUrl(data.stream.m3u8);
     }, [])
-    
+
     // const videoUrl = prompt("Paste the m3u8 video url", "");
 
     // console.log(videoUrl);
@@ -27,12 +27,14 @@ export default function SocolivePlayer({data}: {data: RoomStream}) {
     return (
         <>
             {videoUrl && <ReactPlayer url={videoUrl} controls={true}
-                config={{
-                    file: {
-                        forceHLS: true
+                config={
+                    {
+                        // file: {
+                        //     forceHLS: true
+                        // }
                     }
-                }}
-                wrapper={undefined}            
+                }
+                wrapper={undefined}
             />}
             <p><b>Playing: </b> {videoUrl}</p>
             <div>

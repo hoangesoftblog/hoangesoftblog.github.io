@@ -67,23 +67,23 @@ export default function VeboPlayer({ data }: Readonly<{ data: MatchStatus }>) {
             <h1>VeboPlayer</h1>
             {videoUrl && <ReactPlayer url={videoUrl} controls={true}
                 config={{
-                    file: {
-                        forceHLS: true,
-                        hlsOptions: {
-                            xhrSetup: function (xhr: XMLHttpRequest, url: string) {
-                                console.log(arguments);
-                                // xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-                                // xhr.setRequestHeader("Access-Control-Allow-Headers", 
-                                //     "Content-Type, User-Agent, If-Modified-Since, Cache-Control, Range");
-                                // xhr.setRequestHeader("Access-Control-Expose-Headers", 
-                                //     "Date, Server, Content-Type, Content-Length");
-                                // xhr.setRequestHeader("method", "GET");
-                                // xhr.setRequestHeader("referer", "*");
-                                // xhr.setRequestHeader("origin", "*");
-                                // xhr.open("GET", videoUrl);                           
-                            },
-                        }
-                    }
+                    // file: {
+                    //     forceHLS: true,
+                    //     hlsOptions: {
+                    //         xhrSetup: function (xhr: XMLHttpRequest, url: string) {
+                    //             console.log(arguments);
+                    //             // xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+                    //             // xhr.setRequestHeader("Access-Control-Allow-Headers", 
+                    //             //     "Content-Type, User-Agent, If-Modified-Since, Cache-Control, Range");
+                    //             // xhr.setRequestHeader("Access-Control-Expose-Headers", 
+                    //             //     "Date, Server, Content-Type, Content-Length");
+                    //             // xhr.setRequestHeader("method", "GET");
+                    //             // xhr.setRequestHeader("referer", "*");
+                    //             // xhr.setRequestHeader("origin", "*");
+                    //             // xhr.open("GET", videoUrl);                           
+                    //         },
+                    //     }
+                    // }
                 }}
                 wrapper={undefined}
             />}
