@@ -27,7 +27,9 @@ export interface RoomStream {
 export interface RoomInfo {
     anchor: Anchor;
     roomNum: string;
-    title: string;                  // Match title
+
+    // Match title, including both the league + the teams
+    title: string;                  
     
     notice: string;                 // Notice from commentator
     detail: string;                 // Mostly just the commentator's name

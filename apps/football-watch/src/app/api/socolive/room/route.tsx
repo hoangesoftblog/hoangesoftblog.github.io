@@ -1,4 +1,4 @@
-import { RoomDetailStatus } from "../../socolive-definitions";
+import { RoomDetailStatus } from "../../../socolive-definitions";
 import { cookies } from "next/headers";
 
 // export const dynamic = 'force-dynamic' // defaults to force-static
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     let res;
     try {
         res = await fetch(`https://json.vnres.co/room/${id}/detail.json`, {
-            next: {revalidate: 0},
+            next: {revalidate: 60},
         });
         console.log("Room Detail - ID:", id);
         console.log(res);

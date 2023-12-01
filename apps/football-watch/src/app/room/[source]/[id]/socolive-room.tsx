@@ -2,14 +2,14 @@ import { RoomDetailStatus, RoomInfo, Stream } from "@/app/socolive-definitions";
 import { notFound } from "next/navigation";
 import SocolivePlayer from "./socolive-player";
 
-export default async function SocoliveRoom({id, ...rest}: {id: string}) {
+export default async function SocoliveRoom({ id, ...rest }: { id: string }) {
     console.log(`Rendering FootballWatch - Room ${id}`);
 
     let detail: RoomDetailStatus;
     try {
         // Todo: Will resolve to error "Failed to parse URL from /api/room?id=9912043"
         const response = await fetch(`https://json.vnres.co/room/${id}/detail.json`, {
-            next: {revalidate: 60}
+            next: { revalidate: 60 }
         });
         if (response.ok) {
             detail = await processJSON(response);
@@ -19,10 +19,10 @@ export default async function SocoliveRoom({id, ...rest}: {id: string}) {
             console.error(response);
             if (response.status === 404) {
                 notFound();
-            }       
+            }
             else {
                 throw new Error(response.statusText);
-            }    
+            }
         }
     }
     catch (error) {
@@ -35,23 +35,18 @@ export default async function SocoliveRoom({id, ...rest}: {id: string}) {
     }
 
     const data = detail!.data;
-    const {room, stream: streams}: {room: RoomInfo, stream: Stream} = data;
+    const { room, stream: streams }: { room: RoomInfo, stream: Stream } = data;
     console.log(streams);
 
     return (
-        <div>
-            <h1>{id}</h1>
-            <h1>Room {room.anchor.nickName}</h1>
-            <br/>
-            <div>
-                <h2>Video Player</h2>
-                <SocolivePlayer data={detail.data}/>
+        <div className="">
+            <h1 className="text-3xl mb-4 font-bold">{room.title}</h1>
+            <div className="flex flex-row mb-2">
+                <h2 className="text-2xl grow">BLV: {room.anchor.nickName}</h2>
             </div>
-            <br/>
             <div>
-                <h3>Stream URL</h3>
-                <p>{streams.m3u8}</p>
-                <p>{streams.hdM3u8}</p>
+                {/* <h2>Video Player</h2> */}
+                <SocolivePlayer data={detail.data} />
             </div>
         </div>
     )

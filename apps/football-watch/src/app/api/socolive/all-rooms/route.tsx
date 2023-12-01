@@ -1,4 +1,4 @@
-import { AllRoomsStatus } from "../../socolive-definitions";
+import { AllRoomsStatus } from "../../../socolive-definitions";
 import { cookies } from "next/headers";
 
 // export const dynamic = 'force-dynamic' // defaults to force-static
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     try {
         res = await fetch(`https://json.vnres.co//all_live_rooms.json`, {
             credentials: "include",
-            next: {revalidate: 0}
+            next: {revalidate: 60}
         });
         console.log("AllRoomResponse:");
         console.log(res);

@@ -115,15 +115,24 @@ export default async function Home() {
     // )
 
     return (
-        <main>
-            <h1>Football Watch</h1>
-            <Suspense fallback={<div>Socolive Loading</div>}>
-                <SocoliveList />
-            </Suspense>
+        <main className='p-4 md:container mx-auto w-full'>
+            <div className="mb-4">
+                <h1 className='text-3xl mb-4'>Football Watch</h1>
+                {/* <div>
+                    <h2 className='my-4 text-2xl'>Socolive</h2>
+                    <MatchOverview />
+                </div> */}
+                <Suspense fallback={<div>Socolive Loading</div>}> 
+                    <SocoliveList />
+                </Suspense>
+            </div>
             <br/>
+            
+            {/* 
             <Suspense fallback={<div>Vebot.live Loading</div>}>
                 <VeboList />
-            </Suspense>
+            </Suspense> 
+            */}
         </main>
     )
 

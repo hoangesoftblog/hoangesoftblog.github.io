@@ -6,13 +6,13 @@ import { RoomDetailStatus, RoomInfo, Stream } from "../../../socolive-definition
 import SocolivePlayer from "./socolive-player";
 
 // Todo: Add the match detail panel, using useEffect subscription
-export default function Room({ id }: Readonly<{ id: string }>) {
+export default function Room({ id, className = "" }: Readonly<{ id: string, className: string }>) {
     const [detail, setDetail] = useState<RoomDetailStatus | undefined>(undefined);
 
     console.log("Rendering Socolive Room - ID:", id);
 
     useEffect(() => {
-        fetch(`/api/room?id=${id}`)
+        fetch(`/api/socolive/room?id=${id}`)
             .then((response: Response) => {
                 console.log("Socolive Room - ID:", id);
 
@@ -46,26 +46,21 @@ export default function Room({ id }: Readonly<{ id: string }>) {
         console.log(streams);
 
         return (
-            <div>
-                <h1>{id}</h1>
-                <h1>Room {room.anchor.nickName}</h1>
-                <br />
-                <div>
-                    <h2>Video Player</h2>
-                    <SocolivePlayer data={detail.data} />
+            <div className="">
+                <h1 className="text-3xl mb-4 font-bold">{room.title}</h1>
+                <div className="flex flex-row mb-2">
+                    <h2 className="text-2xl grow">Commentator: {room.anchor.nickName}</h2>
                 </div>
-                <br />
                 <div>
-                    <h3>Stream URL</h3>
-                    <p>{streams.m3u8}</p>
-                    <p>{streams.hdM3u8}</p>
+                    {/* <h2>Video Player</h2> */}
+                    <SocolivePlayer data={detail.data} />
                 </div>
             </div>
         )
     }
     else {
         return (
-            <p>Currently empty</p>
+            <p className="">Currently empty</p>
         )
     }
 }

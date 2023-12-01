@@ -1,4 +1,4 @@
-let a = {
+let featured = {
     "status": 1,
     "data": [
         {
@@ -253,4 +253,4 @@ let a = {
             "id": "avnQzsA"
         }
     ]
-}
+};

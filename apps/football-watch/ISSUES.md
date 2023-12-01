@@ -10,9 +10,14 @@
 + P.P.S: This appears for "Vebo" -> unable to solve yet.
 
 
+- Problem: Components that are declared in folder "src/component" does not get compiled properly, whose classes are not read by TailwindCSS and does not apply and show in the browser.
++ Solution: Move the folder to "src/app/component". TailwindCSS only parse for code in "src/app" (maybe).
+
+
 
 - Problem: In Next.js, the "ReactPlayer" component in room.tsx catch the error "https://nextjs.org/docs/messages/react-hydration-error"
 + Explanation: The <Video> component inside "ReactPlayer" exists and use Web API, which is not existed in React Server Component.
 + Solution: Somehow only make "ReactPlayer" exist after using a useEffect - which only runs after the component is already rendered.
 
--
+- Problem: The "ReactPlayer" component does not cleanup when the URL is not "m3u8" -> Resource usages (Memory + CPU + etc.) keeps increasing
++ Solution: Finding another player/Create own player
