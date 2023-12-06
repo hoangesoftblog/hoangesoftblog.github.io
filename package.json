@@ -5,16 +5,17 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "preinstall": "npx only-allow pnpm"
   },
   "devDependencies": {
     "eslint": "^8.48.0",
     "prettier": "^3.0.3",
-    "tsconfig": "*",
+    "tsconfig": "workspace:*",
     "turbo": "latest"
   },
   "name": "hoangesoftblog.github.io",
-  "packageManager": "npm@8.11.0",
+  "packageManager": "pnpm@8.11.0",
   "workspaces": [
     "apps/*",
     "packages/*"
