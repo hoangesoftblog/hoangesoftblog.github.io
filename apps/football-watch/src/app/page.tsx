@@ -115,7 +115,7 @@ export default async function Home() {
     // )
 
     return (
-        <main className='p-4 md:container mx-auto w-full'>
+        <>
             <div className="mb-4">
                 <h1 className='text-3xl mb-4'>Football Watch</h1>
                 {/* <div>
@@ -133,7 +133,7 @@ export default async function Home() {
                 <VeboList />
             </Suspense> 
             */}
-        </main>
+        </>
     )
 
 }

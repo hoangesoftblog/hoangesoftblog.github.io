@@ -1,3 +1,5 @@
+import CustomRoomPlayer from "./custom-room-player";
+
 // Todo: Add the match detail panel, using useEffect subscription
 export default function Page() {
     console.log("Rendering Page: Custom Room");
@@ -8,7 +10,7 @@ export default function Page() {
         <div className="">
             <h1 className="text-3xl mb-4 font-bold">Custom Room</h1>
             <div>
-                {/* <SocolivePlayer data={detail.data} /> */}
+                <CustomRoomPlayer />
             </div>
         </div>
     )

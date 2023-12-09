@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link, { LinkProps } from "next/link";
-import microphoneSVG from "../../../public/microphone.svg";
+import microphoneSVG from "@/../public/microphone.svg";
 
 type Score = string | number | undefined;
 
@@ -17,14 +17,14 @@ export default function MatchOverview({
     commentator,
     className = "",
 }: {
-    league: string | undefined, 
-    title: string | {home: string, away: string} | undefined,
-    score: {
+    league?: string, 
+    title?: string | {home: string, away: string},
+    score?: {
         home_score: Score,  
         away_score: Score,
-    } | undefined,
+    },
     room_link: string,
-    commentator: string | undefined,
+    commentator?: string,
     className: string,
 }) {
 
@@ -50,8 +50,10 @@ export default function MatchOverview({
                                
             </div>
             <div className="flex flex-row text-sm marker:items-center mb-2" style={{marginLeft: "-0.375em"}}>
-                <div className="flex flex-row items-center gap-0 grow mr-4">
-                    <Image src={microphoneSVG} alt="MC"/>
+                <div className="flex flex-row items-center grow gap-1 mr-4">
+                    <Image src={microphoneSVG} alt="MC"
+                        height={20}
+                        />
                     {commentator && <span className="">{commentator}</span>}
                 </div>
                 <button className="border-black border-2 rounded py-1 px-2 hover:bg-gray-500 hover:text-white">

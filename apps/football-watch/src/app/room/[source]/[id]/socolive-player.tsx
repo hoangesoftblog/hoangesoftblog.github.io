@@ -8,12 +8,11 @@ import ReactPlayer from "react-player/file";
 type Quality = "SD" | "HD";
 
 // Todo: Add the match detail panel, using useEffect subscription
-export default function SocolivePlayer({ data, className = "" }: { data: RoomStream, className: string | undefined }) {
+export default function SocolivePlayer({ data, className = "" }: { data: RoomStream, className?: string }) {
     // 1) data is initial value from getting from server,
     // and update each time user re-select the quality option.
     // 2) The videoUrl is not in the same origin -> stuck "strict-origin-when-cross-origin"
     const [videoUrl, setVideoUrl] = useState<string>("");
-    const [another, setAnother] = useState("");
 
     // let videoComponent: ReactPlayer | undefined = undefined;
     const {stream: streams} = data;
@@ -36,13 +35,13 @@ export default function SocolivePlayer({ data, className = "" }: { data: RoomStr
     }
 
 
-
+    
     return (
         <>
             {/* {videoUrl && <ReactPlayer key={videoUrl} url={videoUrl} controls={true}
                 wrapper={undefined}
                 width={"100%"} height={"100%"}
-                config={{
+                config={({
                     file: {
                         forceHLS: true,
                         hlsOptions: {
@@ -52,13 +51,8 @@ export default function SocolivePlayer({ data, className = "" }: { data: RoomStr
                             // },
                         }
                     }
-                }}
+                }) as any}
             />} */}
-
-            <div className="mt-4">
-                <input className="border-2 mr-4 border-black" type="text" value={another} onChange={(e) => {setAnother(e.target.value)}}/>
-                <button className="border-2 px-2 border-gray-300 rounded-sm" onClick={() => {setVideoUrl(another);}}>Apply</button>
-            </div>
 
             <div className="mt-4 mb-8">
                 <div className="flex flex-row mb-2">

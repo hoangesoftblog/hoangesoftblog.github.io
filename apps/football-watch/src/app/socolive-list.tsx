@@ -56,12 +56,15 @@ export default async function SocoliveList() {
             //     <p><b>{room.title}</b></p>
             //     <button><Link href={`/room/socolive/${room.roomNum}`}>Watch Now</Link></button>
             // </div>
-                <Fragment key={anchor.uid}>
-                    <MatchOverview 
-                        home="A" away='B' room_link={`/room/socolive/${room.roomNum}`} 
-                        commentator={anchor.nickName}
-                    />
-                </Fragment>
+
+                // <Fragment key={anchor.uid}>
+                //     <MatchOverview 
+                //         home="A" away='B' room_link={`/room/socolive/${room.roomNum}`} 
+                //         commentator={anchor.nickName}
+                //     />
+                // </Fragment>
+
+                <Fragment key={anchor.uid}></Fragment>
             )
         });
 

@@ -1,10 +1,9 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Link from 'next/link'
-import Image from 'next/image'
-import sunSVG from "./sun.svg";
-import ThemeProvider, { ThemeButton, ThemeContext } from './theme-provider';
+import type { Metadata } from 'next';
+
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Link from 'next/link';
+import ThemeProvider, { ThemedMain, ThemeButton, ThemeContext } from './theme-components';
 
 import { useContext } from "react";
 
@@ -24,23 +23,27 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${inter.className} flex flex-col h-screen`}>
-                <nav className='bg-black text-white'>
-                    <div className='md:container flex flex-row mx-auto p-4'>
-                        <div className="flex flex-row grow shrink-0">
-                            <Link href={"/"} className=''>MatchLive</Link>
-                        </div>
-                        <div>
-                            <ThemeProvider>
-                                <ThemeButton />
-                            </ThemeProvider> 
-                        </div>
-                    </div>
-                </nav>
-                <ThemeProvider>{children}</ThemeProvider>
-                <div className='grow'></div>
-                <footer className='text-center bg-black text-white p-4'>
-                    <p>Made by <Link href="" className='text-sky-700 underline'>hoangesoftblog</Link></p>
-                </footer>
+                <ThemeProvider>
+                    <header>
+                        <nav className='bg-black text-white'>
+                            <div className='md:container flex flex-row mx-auto p-4'>
+                                <div className="flex flex-row grow shrink-0">
+                                    <Link href={"/"} className=''>MatchLive</Link>
+                                </div>
+                                <div className='flex flex-row gap-4'>
+                                    <Link href={"/custom-room"} >Custom</Link>
+                                    <ThemeButton />
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                    <ThemedMain>
+                        {children}
+                    </ThemedMain>
+                    <footer className='text-center bg-black text-white p-4'>
+                        <p>Made by <Link href="" className='text-sky-700 underline'>hoangesoftblog</Link></p>
+                    </footer>
+                </ThemeProvider>
             </body>
         </html>
     )

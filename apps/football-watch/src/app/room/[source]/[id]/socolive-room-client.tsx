@@ -6,7 +6,7 @@ import { RoomDetailStatus, RoomInfo, Stream } from "../../../socolive-definition
 import SocolivePlayer from "./socolive-player";
 
 // Todo: Add the match detail panel, using useEffect subscription
-export default function Room({ id, className = "" }: Readonly<{ id: string, className: string }>) {
+export default function Room({ id, className = "" }: Readonly<{ id: string, className?: string }>) {
     const [detail, setDetail] = useState<RoomDetailStatus | undefined>(undefined);
 
     console.log("Rendering Socolive Room - ID:", id);
