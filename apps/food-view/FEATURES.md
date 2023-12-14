@@ -1,3 +1,4 @@
+# Features:
 1. **User Authentication and Profiles:**
 - User registration and login.
 
@@ -25,3 +26,56 @@
 - Clean and intuitive interface
 - Easy navigation with a search bar and filters
 - Interactive map for visualizing locations
+
+
+
+# Tech Stack
+- [Typescript-ESLint](https://typescript-eslint.io/)
+
+
+
+# Schema (example)
+// Users Collection
+{
+  _id: ObjectId("unique_id"),
+  username: "user123",
+  email: "user123@example.com",
+  password: "hashed_password",
+  createdAt: ISODate("timestamp"),
+  updatedAt: ISODate("timestamp")
+}
+
+// EntertainmentPlaces Collection
+{
+  _id: ObjectId("unique_id"),
+  name: "ABC Restaurant",
+  category: "Restaurant",
+  address: {
+    street: "123 Main St",
+    city: "City Name",
+    district: "District Name",
+    postalCode: "12345"
+  },
+  location: {
+    type: "Point",
+    coordinates: [longitude, latitude]
+  },
+  openingHours: {
+    start: "08:00 AM",
+    end: "10:00 PM"
+  },
+  createdAt: ISODate("timestamp"),
+  updatedAt: ISODate("timestamp")
+}
+
+// Reviews Collection
+{
+  _id: ObjectId("unique_id"),
+  userId: ObjectId("user_id"),
+  entertainmentPlaceId: ObjectId("entertainment_place_id"),
+  rating: 4,
+  comment: "Great experience!",
+  createdAt: ISODate("timestamp"),
+  updatedAt: ISODate("timestamp")
+}
+
