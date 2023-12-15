@@ -79,3 +79,42 @@
   updatedAt: ISODate("timestamp")
 }
 
+
+# Step
+Here is the list of steps we decided to work on for this project. Ask me what I want to do next in the next input.
+
+**Define Requirements:**
+- You outlined the features and functionality you want in your web application, covering user authentication, location-based services, search and filtering, detailed information, admin features, feedback and support, and design considerations.
+
+**Choose Tech Stack:**
+- You selected the technologies for your project, including Vue.js for the frontend, Node.js with Express for the backend, MongoDB Atlas for the database, Google Maps API for mapping, Auth0 for user authentication, and Vuetify for design and styling.
+
+**Set Up Development Environment:**
+- This step involves installing the necessary tools, such as a code editor, version control (e.g., Git), and the runtime environments for Node.js and Vue.js. You'll also set up your project structure and configure any necessary dependencies.
+
+**Design the Database:**
+- In this step, you'll plan the structure of your MongoDB database. Identify entities, relationships, and how data will be stored.
+
+**Build the Backend:**
+- Develop the backend using Node.js and Express. Implement routes, controllers, and connect to the MongoDB database. Start with basic functionality like user registration and login.
+
+**Create a Basic Frontend:**
+- Start building the frontend of your application using Vue.js and Vuetify. Set up a simple user interface to display basic information.
+
+**Integrate Google Maps API:**
+- Implement Google Maps API to display a map showing nearby entertainment places. Allow users to set their location or use geolocation for real-time updates on the map.
+
+**Implement User Authentication with Auth0:**
+- Set up user authentication using Auth0. This involves configuring Auth0, integrating it with your frontend and backend, and implementing user registration and login.
+
+**Implement Search and Filter Functionality:**
+- Develop the search and filter features based on your defined requirements. Allow users to search for entertainment places by keyword, category, location, and apply filters.
+
+**Implement Detailed Information and Admin Features:**
+- Build functionality to redirect users to Google Maps for navigation, allow them to write reviews, and implement admin features for managing entertainment places.
+
+**Design and Style the Frontend:**
+- Enhance the design and styling of your frontend using Vuetify. Ensure a clean, responsive, and intuitive interface.
+
+**Provide Contact Information for Feedback:**
+- If you decide to implement the feedback form later, provide an email address for users to send direct feedback.

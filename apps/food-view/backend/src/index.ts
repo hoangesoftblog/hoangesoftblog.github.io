@@ -3,14 +3,18 @@ import express, { Express, Request, Response } from "express";
 const { MongoClient, ServerApiVersion } = require('mongodb');
 import dotenv from "dotenv";
 import { closeDB, connectDB } from "@/utils/db";
+import { userRouter } from "./routes";
 
 
 dotenv.config();
-const port = process.env.PORT ?? 5172;
+// dotenv.config({ path: "./config.env" });
 
 connectDB();
 
+const port = process.env.PORT ?? 5172;
 const app: Express = express();
+
+// app.use("/users", userRouter);
 
 process.on('SIGINT', async () => {
     await closeDB();

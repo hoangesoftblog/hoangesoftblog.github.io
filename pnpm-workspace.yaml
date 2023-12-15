@@ -3,5 +3,6 @@ packages:
   - 'apps/*'
   - 'packages/*'
   - 'apps/food-view/*'
+  - 'apps/food-view/frontend/*'
   # if required, exclude directories
   - '!**/test/**'
