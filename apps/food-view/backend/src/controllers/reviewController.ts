@@ -74,13 +74,16 @@
 // File: src/controllers/reviewController.ts
 
 import { Request, Response } from 'express';
-import { ReviewService } from '@/services/reviewService';
+import { ReviewService, getReviewService } from '@/services/reviewService';
 import { Review } from '@/models';
 
-const reviewService = new ReviewService();
+function retrieveReviewService(): ReviewService {
+  return getReviewService();
+}
 
 export const createReview = async (req: Request, res: Response) => {
   try {
+    const reviewService = getReviewService();
     const { userId, placeId, rating, comment } = req.body;
     const reviewId = await reviewService.createReview({ userId, placeId, rating, comment });
     res.status(201).json({ reviewId });
@@ -92,6 +95,8 @@ export const createReview = async (req: Request, res: Response) => {
 
 export const getReviewById = async (req: Request, res: Response) => {
   try {
+    const reviewService = getReviewService();
+
     const reviewId = req.params.id;
     const review = await reviewService.getReviewById(reviewId);
 
@@ -108,6 +113,8 @@ export const getReviewById = async (req: Request, res: Response) => {
 
 export const updateReview = async (req: Request, res: Response) => {
   try {
+    const reviewService = getReviewService();
+
     const reviewId = req.params.id;
     const { rating, comment } = req.body;
     const updated = await reviewService.updateReview(reviewId, { rating, comment });
@@ -125,6 +132,8 @@ export const updateReview = async (req: Request, res: Response) => {
 
 export const deleteReview = async (req: Request, res: Response) => {
   try {
+    const reviewService = getReviewService();
+
     const reviewId = req.params.id;
     const deleted = await reviewService.deleteReview(reviewId);
 

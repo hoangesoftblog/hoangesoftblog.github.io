@@ -3,22 +3,35 @@ import express, { Express, Request, Response } from "express";
 const { MongoClient, ServerApiVersion } = require('mongodb');
 import dotenv from "dotenv";
 import { closeDB, connectDB } from "@/utils/db";
-import { userRouter } from "./routes";
-
+import { userRouter, placeRouter } from "./routes";
+import cors from "cors";
 
 dotenv.config();
 // dotenv.config({ path: "./config.env" });
 
-connectDB();
+connectDB()
+.then(() => {
+    const port = process.env.PORT ?? 5172;
+    const app: Express = express();
+    
+    app.use(cors());
+    app.use(express.json());
 
-const port = process.env.PORT ?? 5172;
-const app: Express = express();
+    // app.use("/users", userRouter);
+    app.use(placeRouter);
 
-// app.use("/users", userRouter);
+    process.on('SIGINT', async () => {
+        await closeDB();
+        process.exit(0);
+    });
 
-process.on('SIGINT', async () => {
-    await closeDB();
-    process.exit(0);
+    app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+})
+.catch(err => {
+    console.log("Connection error: " + err);
+    process.exit(1);
 })
 
 // app.get('/', (req: Request, res: Response) => {

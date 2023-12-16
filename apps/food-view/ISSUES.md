@@ -105,3 +105,9 @@
     - Ref: 
         - <https://stackoverflow.com/a/53691493>
         - <https://stackoverflow.com/a/70905194>
+
+
+
+## "... is a type and must be imported using a type-only import ..." should have a quick fix
+- Problem: Place is a Typescript interface in "src/models.ts". When import to "src/components/place.vue", it cause this error
+- Solution: update the import to `import {type Place} from "src.models.ts";`

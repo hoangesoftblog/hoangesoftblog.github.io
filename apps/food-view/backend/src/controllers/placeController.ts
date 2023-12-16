@@ -87,13 +87,16 @@
 // File: src/controllers/placeController.ts
 
 import { Request, Response } from 'express';
-import { PlaceService } from '@/services/placeService';
+import { PlaceService, getPlaceService } from '@/services/placeService';
 import { Place } from '@/models';
 
-const placeService = new PlaceService();
+function retrievePlaceService(): PlaceService {
+  return getPlaceService();
+}
 
 export const createPlace = async (req: Request, res: Response) => {
   try {
+    const placeService = getPlaceService();
     const { name, category, address, location, openingHours } = req.body;
     const placeId = await placeService.createPlace({ name, category, address, location, openingHours } );
     res.status(201).json({ placeId });
@@ -105,6 +108,8 @@ export const createPlace = async (req: Request, res: Response) => {
 
 export const getPlaceById = async (req: Request, res: Response) => {
   try {
+    const placeService = getPlaceService();
+
     const placeId = req.params.id;
     const place = await placeService.getPlaceById(placeId);
 
@@ -119,8 +124,29 @@ export const getPlaceById = async (req: Request, res: Response) => {
   }
 };
 
+
+export const getPlaces = async (req: Request, res: Response) => {
+  try {
+    const placeService = getPlaceService();
+
+    const places = await placeService.getPlaces();
+
+    // if (!place) {
+    //   return res.status(404).json({ message: 'Place not found' });
+    // }
+
+    res.json(places);
+  } catch (error) {
+    console.error('Error retrieving place:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
 export const updatePlace = async (req: Request, res: Response) => {
   try {
+    const placeService = getPlaceService();
+
     const placeId = req.params.id;
     const { name, category, address, location, openingHours } = req.body;
     const updated = await placeService.updatePlace(placeId, { name, category, address, location, openingHours });
@@ -138,6 +164,8 @@ export const updatePlace = async (req: Request, res: Response) => {
 
 export const deletePlace = async (req: Request, res: Response) => {
   try {
+    const placeService = getPlaceService();
+
     const placeId = req.params.id;
     const deleted = await placeService.deletePlace(placeId);
 

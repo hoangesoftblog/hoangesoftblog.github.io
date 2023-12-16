@@ -22,12 +22,12 @@ export class ReviewService {
   }
 
   async getReviewById(reviewId: string): Promise<Review | null> {
-    return this.collection.findOne({ _id: new ObjectId(reviewId) });
+    return this.collection.findOne({ _id: new ObjectId(reviewId) as any });
   }
 
   async updateReview(reviewId: string, updates: Partial<Review>): Promise<boolean> {
     const result = await this.collection.updateOne(
-      { _id: new ObjectId(reviewId) },
+      { _id: new ObjectId(reviewId) as any },
       {
         $set: {
           ...updates,
@@ -39,7 +39,15 @@ export class ReviewService {
   }
 
   async deleteReview(reviewId: string): Promise<boolean> {
-    const result = await this.collection.deleteOne({ _id: new ObjectId(reviewId) });
+    const result = await this.collection.deleteOne({ _id: new ObjectId(reviewId) as any });
     return result.deletedCount > 0;
   }
+}
+
+let singletonService: ReviewService | undefined;
+export function getReviewService() {
+    if (!singletonService) {
+        singletonService = new ReviewService();
+    }
+    return singletonService;
 }

@@ -28,7 +28,8 @@ export const connectDB = async () => {
         // cs.forEach((e: Collection) => console.log(e.collectionName));
     } catch (error) {
         console.error('Error connecting to the database', error);
-        process.exit(1);
+        throw error;
+        // process.exit(1);
     }
 };
 
@@ -41,7 +42,12 @@ export const getDB = () => {
 
 export const closeDB = async () => {
     if (client) {
-        await client.close();
-        database = undefined;
+        try{ 
+            client.close(); 
+            database = undefined;
+        }
+        catch (error) {
+            throw error;
+        }
     }
 }

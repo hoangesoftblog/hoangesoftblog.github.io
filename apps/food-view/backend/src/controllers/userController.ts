@@ -77,13 +77,17 @@
 // File: src/controllers/userController.ts
 
 import { Request, Response } from 'express';
-import { UserService } from '@/services/userService';
+import { getUserService, UserService } from '@/services/userService';
 import { User, UserWithoutId } from '@/models';
 
-const userService = new UserService();
+
+function retrieveUserService(): UserService {
+  return getUserService();
+}
 
 export const createUser = async (req: Request, res: Response) => {
   try {
+    const userService = getUserService();
     const user: Partial<UserWithoutId> = req.body;
     const userId = await userService.createUser(user);
     res.status(201).json({ userId });
@@ -95,6 +99,8 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
+    const userService = getUserService();
+
     const userId = req.params.id;
     const user = await userService.getUserById(userId);
 
@@ -111,6 +117,8 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
+    const userService = getUserService();
+
     const userId = req.params.id;
     const { username, email, password } = req.body;
     const updated = await userService.updateUser(userId, { username, email, password });
@@ -128,6 +136,8 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
+    const userService = getUserService();
+
     const userId = req.params.id;
     const deleted = await userService.deleteUser(userId);
 

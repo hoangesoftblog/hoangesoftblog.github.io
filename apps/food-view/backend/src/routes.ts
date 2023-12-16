@@ -22,14 +22,16 @@ userRouter.delete('/users/:id', userController.deleteUser);
 import * as placeController from '@/controllers/placeController';
 const placeRouter: Router = express.Router();
 
-// Create a new entertainment place
-placeRouter.post('/entertainment-places', placeController.createPlace);
-// Get entertainment place by ID
-placeRouter.get('/entertainment-places/:id', placeController.getPlaceById);
-// Update entertainment place by ID
-placeRouter.put('/entertainment-places/:id', placeController.updatePlace);
-// Delete entertainment place by ID
-placeRouter.delete('/entertainment-places/:id', placeController.deletePlace);
+// Create a new place
+placeRouter.post('/places', placeController.createPlace);
+// Get places
+placeRouter.get('/places', placeController.getPlaces);
+// Get place by ID
+placeRouter.get('/places/:id', placeController.getPlaceById);
+// Update place by ID
+placeRouter.put('/places/:id', placeController.updatePlace);
+// Delete place by ID
+placeRouter.delete('/places/:id', placeController.deletePlace);
 
 
 

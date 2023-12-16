@@ -22,12 +22,17 @@ export class PlaceService {
   }
 
   async getPlaceById(placeId: string): Promise<Place | null> {
-    return this.collection.findOne({ _id: new ObjectId(placeId) });
+    return this.collection.findOne({ _id: new ObjectId(placeId) } as any);
+  }
+
+  async getPlaces() {
+    // return this.collection.find().batchSize(10);
+    return []
   }
 
   async updatePlace(placeId: string, updates: Partial<Place>): Promise<boolean> {
     const result = await this.collection.updateOne(
-      { _id: new ObjectId(placeId) },
+      { _id: new ObjectId(placeId) as any},
       {
         $set: {
           ...updates,
@@ -39,7 +44,16 @@ export class PlaceService {
   }
 
   async deletePlace(placeId: string): Promise<boolean> {
-    const result = await this.collection.deleteOne({ _id: new ObjectId(placeId) });
+    const result = await this.collection.deleteOne({ _id: new ObjectId(placeId) } as any);
     return result.deletedCount > 0;
   }
+}
+
+
+let singletonService: PlaceService | undefined;
+export function getPlaceService() {
+    if (!singletonService) {
+        singletonService = new PlaceService();
+    }
+    return singletonService;
 }
