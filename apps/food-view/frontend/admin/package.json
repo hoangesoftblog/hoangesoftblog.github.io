@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "displayName": "food-view-frontend",
+  "name": "frontend-admin",
+  "displayName": "food-view-frontend-admin",
   "version": "0.0.0",
   "private": true,
   "type": "module",
