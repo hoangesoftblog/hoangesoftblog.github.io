@@ -25,14 +25,28 @@ export class PlaceService {
     return this.collection.findOne({ _id: new ObjectId(placeId) } as any);
   }
 
-  async getPlaces() {
-    // return this.collection.find().batchSize(10);
-    return []
+  async getPlaces(limit: number = 20): Promise<{data: Place[], hasNext: boolean}> {
+    // Todo: Update advanced search options + filter + page + limit.
+    // Not easy to just get all.
+    
+    const resultCursor = this.collection.find({}).batchSize(limit);
+    // // Recommended code from MongoDB Driver page
+    // const arr = [] as Place[];
+    // for await (const doc of resultCursor) {
+    //   arr.push(doc);
+    // }
+      
+    // // Finding ways to get results without using for-await-of
+    // const cursor = resultCursor[Symbol.asyncIterator]();
+    // It is better to use Promise.all, but MongoDB Driver suggest that 
+    // not to run async calls simultaneously.
+    const results = await resultCursor.toArray();
+    return {data: results, hasNext: await resultCursor.hasNext()};
   }
 
   async updatePlace(placeId: string, updates: Partial<Place>): Promise<boolean> {
     const result = await this.collection.updateOne(
-      { _id: new ObjectId(placeId) as any},
+      { _id: new ObjectId(placeId) as any },
       {
         $set: {
           ...updates,
@@ -52,8 +66,8 @@ export class PlaceService {
 
 let singletonService: PlaceService | undefined;
 export function getPlaceService() {
-    if (!singletonService) {
-        singletonService = new PlaceService();
-    }
-    return singletonService;
+  if (!singletonService) {
+    singletonService = new PlaceService();
+  }
+  return singletonService;
 }
