@@ -1,15 +1,15 @@
 // File: src/services/placeService.ts
 
-import { Collection, ObjectId } from 'mongodb';
+import { Collection, ObjectId, Sort } from 'mongodb';
 import { Place, PlaceWithoutId } from '@/models';
 import { getDB } from '@/utils/db';
+import { MongoDBSortOrder } from '@/utils/mongodb';
 
 export class PlaceService {
-  private collection: Collection<Place>;
+  public collection: Collection<Place>;
 
-  constructor() {
-    const db = getDB();
-    this.collection = db.collection<Place>('places');
+  constructor(collectionName: string = "places", db = getDB()) {
+    this.collection = db.collection<Place>(collectionName);
   }
 
   async createPlace(place: Partial<Omit<Place, '_id'>>): Promise<string> {
@@ -18,31 +18,72 @@ export class PlaceService {
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Place);
+
     return result.insertedId.toString();
+  }
+
+  async createPlaces(places: Partial<Omit<Place, '_id'>>[]): Promise<{[key: number]: string}> {
+    let res = await this.collection.insertMany(places as Place[]);
+    if (!res.acknowledged) {
+      throw new Error("create multiple places failed.");
+    }
+    return res.insertedIds;
   }
 
   async getPlaceById(placeId: string): Promise<Place | null> {
     return this.collection.findOne({ _id: new ObjectId(placeId) } as any);
   }
 
-  async getPlaces(limit: number = 20): Promise<{data: Place[], hasNext: boolean}> {
+  async getPlaces({page = 1, limit = 5, sort}: {page?: number, limit?: number, sort?: {[x: string]: MongoDBSortOrder}} = {}): Promise<{data: Place[], hasNext: boolean}> {
     // Todo: Update advanced search options + filter + page + limit.
-    // Not easy to just get all.
-    
-    const resultCursor = this.collection.find({}).batchSize(limit);
-    // // Recommended code from MongoDB Driver page
-    // const arr = [] as Place[];
-    // for await (const doc of resultCursor) {
-    //   arr.push(doc);
+    // Not easy to just get all though.
+    // console.log(await this.collection.countDocuments({}));
+
+    // Sample output:
+    // {
+    //   '0': new ObjectId('6585575d1b3c6ec0e45dac87'),
+    //   '1': new ObjectId('6585575d1b3c6ec0e45dac88'),
+    //   ...
     // }
+
+    const skip = (page - 1) * limit;
+    const consistentSort = {"_id": 1, ...(sort ?? {})} as Sort;
+    let resultCursor = this.collection.find({}).sort(consistentSort).skip(skip).limit(limit);
+    
+    // Recommended code from MongoDB Driver page
+    const results = [] as Place[];
+    for await (const doc of resultCursor) {
+      results.push(doc);
+    }
+
       
     // // Finding ways to get results without using for-await-of
     // const cursor = resultCursor[Symbol.asyncIterator]();
     // It is better to use Promise.all, but MongoDB Driver suggest that 
     // not to run async calls simultaneously.
-    const results = await resultCursor.toArray();
+    // const results = await resultCursor.toArray();
+    // console.log(await resultCursor.next());
     return {data: results, hasNext: await resultCursor.hasNext()};
   }
+
+  // async getPlaces(options: GetPlacesOptions = {}): Promise<Place[]> {
+  //   const cursor: Cursor<Place> = this.collection.find(options.filter || {});
+
+  //   // Apply sorting if provided
+  //   if (options.sort) {
+  //     cursor.sort(options.sort);
+  //   }
+
+  //   // Apply pagination if provided
+  //   if (options.pagination) {
+  //     cursor.skip(options.pagination.skip).limit(options.pagination.limit);
+  //   }
+
+  //   // Convert cursor to array
+  //   const places = await cursor.toArray();
+
+  //   return places;
+  // }
 
   async updatePlace(placeId: string, updates: Partial<Place>): Promise<boolean> {
     const result = await this.collection.updateOne(
@@ -65,9 +106,9 @@ export class PlaceService {
 
 
 let singletonService: PlaceService | undefined;
-export function getPlaceService() {
-  if (!singletonService) {
-    singletonService = new PlaceService();
-  }
-  return singletonService;
+export function getPlaceService(collectionName: string = "places") {
+  // if (!singletonService) {
+  //   singletonService = new PlaceService(collectionName);
+  // }
+  return new PlaceService(collectionName);
 }

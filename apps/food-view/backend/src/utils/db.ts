@@ -17,7 +17,7 @@ const client = new MongoClient(uri, ({
     }
 } as MongoClientOptions));
 
-let databaseName = process.env.DB_NAME;
+const databaseName = process.env.DB_NAME;
 let database: Db | undefined;
 export const connectDB = async () => {
     try {
@@ -40,9 +40,16 @@ export const getDB = () => {
     return database;
 };
 
+export const createCollection = async (collectionName: string) => {
+    if (!database) {
+        throw new Error('Database not connected');
+    }
+    database.createCollection(collectionName);
+}
+
 export const closeDB = async () => {
     if (client) {
-        try{ 
+        try { 
             client.close(); 
             database = undefined;
         }

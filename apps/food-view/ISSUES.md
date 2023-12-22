@@ -5,9 +5,11 @@
 
 ## Absolute import not working.
 **More detail:**
+- In VSCode, it will show "Cannot find module <X> or its corresponding type declarations.ts(2307)"
 - When run "dev", the <code>ts-node</code> give error <code>Cannot find module \'@/utils/db\'</code>
 - When run "build" + "start", <code>node</code> give error <code> Cannot find module '@/utils/db'</code>
 **Solution:**
+- In VSCode, check if the file path is included in `tsconfig.json`
 - For running "dev" with <code>ts-node</code>, need to run <code>npm i -D tsconfig-paths</code>, then do it in 1 of 2 ways
 1. ([Ref](https://stackoverflow.com/a/72622089)) In `tsconfig.json`, add:
     ```json
@@ -111,3 +113,11 @@
 ## "... is a type and must be imported using a type-only import ..." should have a quick fix
 - Problem: Place is a Typescript interface in "src/models.ts". When import to "src/components/place.vue", it cause this error
 - Solution: update the import to `import {type Place} from "src.models.ts";`
+- Ref:
+    - <https://stackoverflow.com/a/64243357>
+    - <https://github.com/microsoft/TypeScript/issues/52444#issue-1558992963>
+
+
+## 'File name differs from already included file name only in casing' on relative path with same casing
+- Problem: Rename a file in VSCode to uppercase version cause this error
+- Solution: <https://stackoverflow.com/a/62159572>

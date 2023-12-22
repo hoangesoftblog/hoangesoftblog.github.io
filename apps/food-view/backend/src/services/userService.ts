@@ -1,6 +1,6 @@
 // File: src/services/userService.ts
 
-import { Collection, ObjectId, MongoClient } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 import { User } from '@/models';
 import { getDB } from '@/utils/db';
 

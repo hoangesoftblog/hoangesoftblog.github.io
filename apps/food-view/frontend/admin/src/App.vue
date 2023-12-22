@@ -1,24 +1,52 @@
 <script setup lang="ts">
-// import { RouterLink, RouterView } from 'vue-router'
-import ListPlace from '@/components/place.vue';
+import Sidebar from "@/views/Sidebar.vue";
+// import PlaceManagementSection from "@/components/place.vue";
+// import DashboardSection from "@/components/dashboard.vue";
+// import UserManagementSection from "./components/UserManagementSection.vue";
+// import ReviewManagementSection from "./components/ReviewManagementSection.vue";
+
+// import { RouterView } from 'vue-router';
+
+// const eventName = "showSection";
+
+// export default {
+//   // data() {
+//   //   return {
+//   //     currentSection: "dashboard",
+//   //   };
+//   // },
+//   // methods: {
+//   //   showSection(section: string) {
+//   //     this.currentSection = section;
+//   //   },
+//   // },
+//   components: {
+//     Sidebar,
+//     // PlaceManagementSection,
+//     // DashboardSection,
+
+//     // UserManagementSection,
+//     // ReviewManagementSection,
+//   },
+// };
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/archived/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-  
-  <RouterView />
+  <!-- Sidebar -->
+  <Sidebar />
+  <!-- Content -->
+  <div id="content">
+    <RouterView />    
+    <!-- <DashboardSection v-if="currentSection === 'dashboard'" /> -->
+    <!-- <PlaceManagementSection v-if="currentSection === 'places'" /> -->
+    <!-- <UserManagementSection v-if="currentSection === 'users'" /> -->
+    <!-- <ReviewManagementSection v-if="currentSection === 'reviews'" /> -->
+    
+  </div>
 </template>
 
-<style scoped>
 
+<style>
+/* Styles go here */
 </style>
+

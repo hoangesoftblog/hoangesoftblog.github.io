@@ -89,94 +89,168 @@
 import { Request, Response } from 'express';
 import { PlaceService, getPlaceService } from '@/services/placeService';
 import { Place } from '@/models';
+import { MongoDBSortOrder } from '@/utils/mongodb';
 
 function retrievePlaceService(): PlaceService {
-  return getPlaceService();
+    return getPlaceService();
 }
 
 export const createPlace = async (req: Request, res: Response) => {
-  try {
-    const placeService = getPlaceService();
-    const { name, category, address, location, openingHours } = req.body;
-    const placeId = await placeService.createPlace({ name, category, address, location, openingHours } );
-    res.status(201).json({ placeId });
-  } catch (error) {
-    console.error('Error creating place:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+    try {
+        const placeService = retrievePlaceService();
+        const { name, category, address, location, openingHours } = req.body;
+        const placeId = await placeService.createPlace({ name, category, address, location, openingHours });
+        res.status(201).json({ placeId });
+    } catch (error) {
+        console.error('Error creating place:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
 
 export const getPlaceById = async (req: Request, res: Response) => {
-  try {
-    const placeService = getPlaceService();
+    try {
+        const placeService = retrievePlaceService();
 
-    const placeId = req.params.id;
-    const place = await placeService.getPlaceById(placeId);
+        const placeId = req.params.id;
+        const place = await placeService.getPlaceById(placeId);
 
-    if (!place) {
-      return res.status(404).json({ message: 'Place not found' });
+        if (!place) {
+            return res.status(404).json({ message: 'Place not found' });
+        }
+
+        res.json(place);
+    } catch (error) {
+        console.error('Error retrieving place:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+function parseSortOrder(order: string | string[] | undefined): { [x: string]: MongoDBSortOrder } {
+    const arr = [];
+    if (order == undefined) {
+        console.log("order is undefined");
+    }
+    else if (Array.isArray(order)) {
+        console.log("order is array");
+
+        arr.push(...order);
+    }
+    else {
+        console.log("order is string");
+        arr.push(order);
     }
 
-    res.json(place);
-  } catch (error) {
-    console.error('Error retrieving place:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
+    const temp = arr.map((e: string) => {
+        if (e[0] === '-') {
+            return [e.slice(1), -1]
+        } else {
+            return [e, 1]
+        }
+    })
 
+    return Object.fromEntries(temp);
+}
 
 export const getPlaces = async (req: Request, res: Response) => {
-  try {
-    const placeService = getPlaceService();
+    try {
+        console.log('getPlaces', req);
 
-    const places = await placeService.getPlaces();
+        const placeService = retrievePlaceService();
 
-    // if (!place) {
-    //   return res.status(404).json({ message: 'Place not found' });
-    // }
+        const query = req.query;
+        const { sort: sortQuery, page: pageStr = "", limit: limitStr = "" }: { sort?: string | string[], page?: string, limit?: string } = query;
+        const page = parseInt(pageStr) || 1;
+        const limit = parseInt(limitStr) || 5;
+        const sort = parseSortOrder(sortQuery);
 
-    res.json(places);
-  } catch (error) {
-    console.error('Error retrieving place:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+        console.log('getPlaces parse value', { page, limit, sort });
+
+        const places = await placeService.getPlaces({ page, limit, sort });
+
+        // if (!place) {
+        //   return res.status(404).json({ message: 'Place not found' });
+        // }
+
+        res.json(places);
+    } catch (error) {
+        console.error('Error retrieving place:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
+
+// // ChatGPT suggestion
+// export const getPlaces = async (req: Request, res: Response) => {
+//     try {
+//       const placeService = getPlaceService();
+  
+//       // Extract query parameters for sorting, filtering, and pagination
+//       const { sortBy, sortOrder, category, page, limit } = req.query;
+  
+//       // Define options object based on query parameters
+//       const options: any = {};
+  
+//       // Sorting
+//       if (sortBy && sortOrder) {
+//         options.sort = { [sortBy as string]: sortOrder === 'asc' ? 1 : -1 };
+//       }
+  
+//       // Filtering
+//       if (category) {
+//         options.filter = { category: category as string };
+//       }
+  
+//       // Pagination
+//       if (page && limit) {
+//         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+//         const pageSize = parseInt(limit as string);
+//         options.pagination = { skip, limit: pageSize };
+//       }
+  
+//       // Get places with applied options
+//       const places = await placeService.getPlaces(options);
+  
+//       res.json(places);
+//     } catch (error) {
+//       console.error('Error retrieving places:', error);
+//       res.status(500).json({ message: 'Internal Server Error' });
+//     }
+//   };
 
 
 export const updatePlace = async (req: Request, res: Response) => {
-  try {
-    const placeService = getPlaceService();
+    try {
+        const placeService = retrievePlaceService();
 
-    const placeId = req.params.id;
-    const { name, category, address, location, openingHours } = req.body;
-    const updated = await placeService.updatePlace(placeId, { name, category, address, location, openingHours });
+        const placeId = req.params.id;
+        const { name, category, address, location, openingHours } = req.body;
+        const updated = await placeService.updatePlace(placeId, { name, category, address, location, openingHours });
 
-    if (!updated) {
-      return res.status(404).json({ message: 'Place not found' });
+        if (!updated) {
+            return res.status(404).json({ message: 'Place not found' });
+        }
+
+        res.json({ message: 'Place updated successfully' });
+    } catch (error) {
+        console.error('Error updating place:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    res.json({ message: 'Place updated successfully' });
-  } catch (error) {
-    console.error('Error updating place:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
 };
 
 export const deletePlace = async (req: Request, res: Response) => {
-  try {
-    const placeService = getPlaceService();
+    try {
+        const placeService = retrievePlaceService();
 
-    const placeId = req.params.id;
-    const deleted = await placeService.deletePlace(placeId);
+        const placeId = req.params.id;
+        const deleted = await placeService.deletePlace(placeId);
 
-    if (!deleted) {
-      return res.status(404).json({ message: 'Place not found' });
+        if (!deleted) {
+            return res.status(404).json({ message: 'Place not found' });
+        }
+
+        res.json({ message: 'Place deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting place:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    res.json({ message: 'Place deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting place:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
 };
 

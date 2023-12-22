@@ -8,6 +8,8 @@ export interface Review {
     updatedAt: Date;
 }
 
+// // To notify that the _id is ObjectId, the JSON should look like this:
+// {"_id":{"$oid":"65807ba4c89745720de7445b"}}
 
 export interface Place {
     _id: string;

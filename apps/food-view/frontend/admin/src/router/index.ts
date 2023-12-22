@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import ListPlaceComponent from '@/components/place.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+// import PlaceManagementComponent from '@/components/place.vue';
+import DashboardComponent from '@/views/Dashboard.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,16 +8,13 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: ListPlaceComponent
+      component: DashboardComponent,
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // }
+    {
+      path: '/places',
+      name: 'placeManagement',
+      component: () => import('@/views/PlaceManagementSection.vue'),
+    }
   ]
 })
 

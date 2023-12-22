@@ -28,3 +28,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Vue.js generated config files
+vite.config.ts.timestamp-*

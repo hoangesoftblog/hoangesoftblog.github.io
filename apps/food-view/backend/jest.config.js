@@ -8,6 +8,11 @@ module.exports = {
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
+    collectCoverage: true,
+    coverageReporters: ['lcov', 'text'],
+
+    // // Specify the beforeAll, but in all tests.
+    // setupFilesAfterEnv: ['./jest.setup.js'],
 }
 
 
