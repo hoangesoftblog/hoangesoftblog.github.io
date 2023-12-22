@@ -121,3 +121,9 @@
 ## 'File name differs from already included file name only in casing' on relative path with same casing
 - Problem: Rename a file in VSCode to uppercase version cause this error
 - Solution: <https://stackoverflow.com/a/62159572>
+
+
+## MongoDB Cursor exhausted after calling toArray() method, or iterating over.
+- Solution: This is the `note` from <https://www.mongodb.com/docs/drivers/node/upcoming/fundamentals/crud/read-operations/cursor/>
+> When you reach the last result through iteration or through an **at-once fetch**, the cursor is exhausted which means it ceases to respond to methods that access the results.
+- Calling with toArray(), or iterating over - is an **at-once fetch**, therefore, based on the `note`, the cursor is exhausted.

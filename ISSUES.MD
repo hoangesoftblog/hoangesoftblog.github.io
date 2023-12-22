@@ -17,3 +17,10 @@ Solution: By changing package manager to "pnpm", the dependency "tsconfig" in "a
     "tsconfig": "***workspace***:\*",  
 }
 </code>
+
+
+# Path Alias in VSCode in JS/TS for Jest and Webpack
+- Ref:
+  + <https://www.uglydirtylittlestrawberry.co.uk/posts/javascript-typescript-path-aliases/>
+  + <https://hackernoon.com/how-to-configure-path-aliases-in-frontend-projects-in-the-native-way>
+
