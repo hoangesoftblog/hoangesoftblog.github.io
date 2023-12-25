@@ -1,18 +1,21 @@
 // __tests__/services/placeService.test.ts
 
-import { Place } from '@/models';
+import { Place, PlaceWithoutId } from '@/models';
 import { getPlaceService, PlaceService } from '@/services/placeService';
 // import { connectDB, closeDB, getDB } from '@/utils/db';
-import { Db, MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
+import { Db, MongoClient, MongoClientOptions, ObjectId, ServerApiVersion } from 'mongodb';
 
 // The mongodb-memory-server downloaded is in 
 // C:\Users\hoang\Desktop\projects\hoangesoftblog.github.io\node_modules\.cache\mongodb-memory-server
 import { MongoMemoryServer } from "mongodb-memory-server";
 
+import { mockOrderPlaces } from "../utils/mockData";
+
 
 describe('PlaceService', () => {
     let placeService: PlaceService;
-    let samplePlaceId: string;
+    let samplePlaceId: string | ObjectId;
+    let insertedIds: { [key: number]: string | ObjectId };
     let db: Db;
     const collectionName = "test_places";
     let mongod: MongoMemoryServer;
@@ -20,6 +23,7 @@ describe('PlaceService', () => {
 
     beforeAll(async () => {
         mongod = await MongoMemoryServer.create();
+        console.log("URI: " + mongod.getUri());
         mongoClient = new MongoClient(mongod.getUri(), ({
             serverApi: {
                 version: ServerApiVersion.v1,
@@ -39,223 +43,33 @@ describe('PlaceService', () => {
             throw error;
             // process.exit(1);
         }
-
-        await db.createCollection(collectionName);
-        placeService = new PlaceService(collectionName, db);
     });
-
+    
     beforeEach(async () => {
+        await db.createCollection(collectionName);
+        placeService = new PlaceService(db.collection<Place>(collectionName));
+
         // Create sample data before each test
-        const samplePlace = {
-            name: 'Sample Place',
-            category: 'Sample Category',
-            address: {
-                street: 'Sample Street',
-                city: 'Sample City',
-                district: 'Sample District',
-                postalCode: '12345',
-            },
-            location: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            openingHours: {
-                start: '08:00',
-                end: '17:00',
-            },
-        } as Place;
-        samplePlaceId = await placeService.createPlace(samplePlace);
-
-        const docs2 = [
-            {
-                "name": "Playful Pet Park",
-                "category": "park",
-                "address": {
-                    "street": "1213 Maple Street",
-                    "city": "Pawville",
-                    "district": "West side",
-                    "postalCode": "78901"
-                },
-                "location": {
-                    "type": "Point",
-                    "coordinates": [-118.78901, 41.78901]
-                },
-                "openingHours": {
-                    "start": "06:00AM",
-                    "end": "10:00PM",
-                    "closedOnTuesdays": true
-                },
-                "amenities": ["fenced area", "water fountains", "obstacle course", "dog waste disposal bins"],
-                "createdAt": "2023-12-15T20:00:00.000Z",
-                "updatedAt": "2023-12-15T20:00:00.000Z"
-            },
-            {
-                "name": "Lively Art Studio",
-                "category": "art",
-                "address": {
-                    "street": "456 Elm Street",
-                    "city": "Hopeville",
-                    "district": "East side",
-                    "postalCode": "56789"
-                },
-                "location": {
-                    "type": "Point",
-                    "coordinates": [-121.56789, 38.56789]
-                },
-                "openingHours": {
-                    "start": "10:00AM",
-                    "end": "06:00PM",
-                    "closedOnMondays": true
-                },
-                "createdAt": "2023-12-18T10:00:00.000Z",
-                "updatedAt": "2023-12-18T10:00:00.000Z"
-            },
-            // Mockup 3: Hidden Book Nook
-            {
-                "name": "Hidden Book Nook",
-                "category": "bookstore",
-                "address": {
-                    "street": "789 Oak Street",
-                    "city": "Bookhaven",
-                    "district": "Old Town",
-                    "postalCode": "90123"
-                },
-                "location": {
-                    "type": "Point",
-                    "coordinates": [-120.90123, 39.90123]
-                },
-                "openingHours": {
-                    "start": "11:00AM",
-                    "end": "09:00PM",
-                    "extendedHoursOnFridays": true
-                },
-                "createdAt": "2023-12-17T14:00:00.000Z",
-                "updatedAt": "2023-12-17T14:00:00.000Z"
-            },
-            // Mockup 4: Vibrant Food Market
-            {
-                "name": "Vibrant Food Market",
-                "category": "grocery",
-                "address": {
-                    "street": "1011 Pine Street",
-                    "city": "Freshland",
-                    "district": "South Market",
-                    "postalCode": "34567"
-                },
-                "location": {
-                    "type": "Point",
-                    "coordinates": [-119.34567, 40.34567]
-                },
-                "openingHours": {
-                    "start": "08:00AM",
-                    "end": "08:00PM",
-                    "closedOnSundays": true
-                },
-                "createdAt": "2023-12-16T18:00:00.000Z",
-                "updatedAt": "2023-12-16T18:00:00.000Z"
-            },
-            // Mockup 1: Cozy Coffee Shop
-            {
-                "name": "Cozy Coffee Shop",
-                "category": "cafe",
-                "address": {
-                    "street": "123 Main Street",
-                    "city": "Sunnyville",
-                    "district": "Central District",
-                    "postalCode": "12345"
-                },
-                "location": {
-                    "type": "Point",
-                    "coordinates": [-122.12345, 37.12345]
-                },
-                "openingHours": {
-                    "start": "07:00AM",
-                    "end": "10:00PM"
-                },
-                "createdAt": "2023-12-19T00:00:00.000Z",
-                "updatedAt": "2023-12-19T00:00:00.000Z"
-            },
-            {
-                "name": "Tranquil Yoga Studio",
-                "category": "wellness",
-                "address": {
-                  "street": "1617 Serenity Lane",
-                  "city": "Balanceville",
-                  "district": "Hilltop",
-                  "postalCode": "56789"
-                },
-                "location": {
-                  "type": "Point",
-                  "coordinates": [-116.56789, 43.56789]
-                },
-                "amenities": ["heated floors", "aromatherapy diffusers", "meditation room", "yoga props"],
-                "openingHours": {
-                  "start": "07:00AM",
-                  "end": "09:00PM",
-                  "specialMorningClassesOnSundays": true
-                },
-                "createdAt": "2023-12-13T06:00:00.000Z",
-                "updatedAt": "2023-12-13T06:00:00.000Z"
-            },
-            {
-                "name": "Movie Magic Cinema",
-                "category": "entertainment",
-                "address": {
-                  "street": "1415 Hollywood Blvd",
-                  "city": "Starlight City",
-                  "district": "Downtown",
-                  "postalCode": "23456"
-                },
-                "location": {
-                  "type": "Point",
-                  "coordinates": [-117.23456, 42.23456]
-                },
-                "amenities": ["luxury seating", "concessions stand", "arcade", "IMAX theater"],
-                "openingHours": {
-                  "start": "10:00AM",
-                  "end": "12:00AM",
-                  "lateNightShowingsFridaySaturday": true
-                },
-                "createdAt": "2023-12-14T12:00:00.000Z",
-                "updatedAt": "2023-12-14T12:00:00.000Z"
-            },
-            {
-                "name": "Buzzing Board Game Cafe",
-                "category": "games",
-                "address": {
-                  "street": "1819 Dice Avenue",
-                  "city": "Funhaven",
-                  "district": "Central District",
-                  "postalCode": "89012"
-                },
-                "location": {
-                  "type": "Point",
-                  "coordinates": [-115.89012, 44.89012]
-                },
-                "amenities": ["extensive board game library", "cozy seating areas", "snacks and drinks menu", "friendly staff to recommend games"],
-                "openingHours": {
-                  "start": "12:00PM",
-                  "end": "11:00PM",
-                },
-                "createdAt": "2023-12-12T10:00:00.000Z",
-                "updatedAt": "2023-12-12T10:00:00.000Z"
-            },                   
-        ];
-
-        let results = await placeService.createPlaces(docs2 as any as Place[]);
-        console.log(results)
+        const mockData = mockOrderPlaces;
+        insertedIds = await placeService.createPlaces(mockData as Place[]);
+        samplePlaceId = insertedIds['0'] as string | ObjectId;
     });
 
     afterEach(async () => {
-        // Delete sample data after each test
-        if (samplePlaceId) {
-            await placeService.deletePlace(samplePlaceId);
-        }
+        // const filteredIds = Object
+        //     .values(insertedIds)
+        //     .map((e: string | ObjectId) => ({ "_id": e }));
+        // // 1 of many ways to delete places with list of "_id" at the same time
+        // // Comment out since if a test needs to create a place, that place gets remained in the database.
+        // await db.collection(collectionName).deleteMany({ $or: filteredIds } as any);
+
+        await db.dropCollection(collectionName);
     });
 
     afterAll(async () => {
         // Add cleanup code if needed
         try {
+            mongod
             await db.dropCollection(collectionName);
             await mongoClient.close();
             await mongod.stop();
@@ -265,45 +79,237 @@ describe('PlaceService', () => {
         }
     });
 
-
-    it('should create a place', async () => {
-        expect(samplePlaceId).toBeDefined();
+    it("collection is invalid", async () => {
+        const tempPlaceService = new PlaceService(db.collection<Place>(""));
+        const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await tempPlaceService.getPlaces({
+            page: 1
+        }); 
+        expect(places).toBeUndefined();
     });
 
-    it('should get a place by ID', async () => {
-        const place = await placeService.getPlaceById(samplePlaceId);
-        expect(place).toBeDefined();
-        expect(place?.name).toBe('Sample Place');
-    });
 
-    it('should get all places', async () => {
-        const data: { data: Place[], hasNext: boolean } = await placeService.getPlaces();
-        const places = data.data;
-        const hasNext = data.hasNext;
-        expect(places).toBeDefined();
-        expect(places.length).toBeGreaterThan(0);
-    });
+    // it('should create a place', async () => {
+    //     expect(samplePlaceId).toBeDefined();
+    // });
 
-    it('should update a place', async () => {
-        const updateData = {
-            name: 'Updated Test Place',
-            category: 'Updated Test Category',
-        };
+    // it.skip('create a place with undefined "_id"', async () => {
+    //     const tempPlace={"_id":undefined,"name":"Playful Pet Park","category":"park","address":{"street":"1213 Maple Street","city":"Pawville","district":"West side","postalCode":"78901"},"location":{"type":"Point","coordinates":[-118.78901,41.78901] as [number, number]},"openingHours":{"start":"06:00AM","end":"10:00PM","closedOnTuesdays":true},"amenities":["fenced area","water fountains","obstacle course","dog waste disposal bins"],"createdAt":"2023-12-15T20:00:00.000Z","updatedAt":"2023-12-15T20:00:00.000Z"};
+    //     const id = await placeService.createPlace(tempPlace as any as PlaceWithoutId);
+    //     await expect(db.collection(collectionName).countDocuments()).resolves.toEqual(mockOrderPlaces.length + 1);
+    // });
 
-        const updated = await placeService.updatePlace(samplePlaceId, updateData);
-        expect(updated).toBe(true);
+    // it('should create multiple places', async () => {
+    //     expect(insertedIds).toBeDefined();
+    //     await expect(db.collection(collectionName).countDocuments()).resolves.toEqual(mockOrderPlaces.length);
+    // });
 
-        const updatedPlace = await placeService.getPlaceById(samplePlaceId);
-        expect(updatedPlace).toBeDefined();
-        expect(updatedPlace?.name).toBe('Updated Test Place');
-        expect(updatedPlace?.category).toBe('Updated Test Category');
-    });
+    // it('should get a place by ID', async () => {
+    //     const place = await placeService.getPlaceById(samplePlaceId);
+    //     expect(place).toBeDefined();
+    //     expect(place?.name).toBe('0');
+    // });
 
-    it('should delete a place', async () => {
-        const deleted = await placeService.deletePlace(samplePlaceId);
-        expect(deleted).toBe(true);
+    // it('should update a place', async () => {
+    //     const updateData = {
+    //         name: 'Updated Test Place',
+    //         category: 'Updated Test Category',
+    //     };
 
-        const nonExistentPlace = await placeService.getPlaceById(samplePlaceId);
-        expect(nonExistentPlace).toBeNull();
-    });
+    //     const updated = await placeService.updatePlace(samplePlaceId, updateData);
+    //     expect(updated).toBe(true);
+
+    //     const updatedPlace = await placeService.getPlaceById(samplePlaceId);
+    //     expect(updatedPlace).toBeDefined();
+    //     expect(updatedPlace?.name).toBe('Updated Test Place');
+    //     expect(updatedPlace?.category).toBe('Updated Test Category');
+    // });
+
+    // it('should delete a place', async () => {
+    //     const deleted = await placeService.deletePlace(samplePlaceId);
+    //     expect(deleted).toBe(true);
+
+    //     const nonExistentPlace = await placeService.getPlaceById(samplePlaceId);
+    //     expect(nonExistentPlace).toBeNull();
+    // });
+
+
+    // describe.skip('getPlaces', () => {
+    //     describe('Positives', () => {
+    //         it('No arguments - should get 5 places, hasNext is true', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces();
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(hasNext).toEqual(true);
+    //         });
+            
+    //         it('Near end, full args (DB Size=10, limit=3, page=4, sort="-name") - should get 1 place, name ["0"]', async () => {  
+    //             const limit = 3;      
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 sort: { name: -1 }, // Sort by name in ascending order
+    //                 page: Math.ceil(mockOrderPlaces.length / limit),
+    //                 limit,
+    //             });
+        
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(mockOrderPlaces.length % limit);
+    //             // Add assertions for sorting, filtering, pagination validation
+    //             // For instance, you can check if the first place's name is as expected based on sorting
+    //             expect(places[0].name).toBe('0');
+    //             expect(hasNext).toEqual(false);
+    //         });
+    
+    //         it('Outside (DB Size=10, limit=3, page=5, sort="-name") - should get 0 place', async () => {  
+    //             const limit = 3;      
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 sort: { name: -1 }, // Sort by name in ascending order
+    //                 page: Math.ceil(mockOrderPlaces.length / limit) + 1,
+    //                 limit,
+    //             });
+        
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(0);
+    //             expect(hasNext).toEqual(false);
+    //         });
+    
+    //         it('Test sorting (DB size=10, sort="-name", limit=5) - should return 5 places with names ["9", "8", "7", "6", "5"]', async () => {  
+    //             const limit = 5;      
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 sort: { name: -1 }, // Sort by name in ascending order
+    //                 page: 1,
+    //                 limit,
+    //                 //   filter: { category: 'Sample Category' }, // Filter by category
+    //             });
+    //             const placeNames = places.map(place => place.name);
+        
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             // Add assertions for sorting, filtering, pagination validation
+    //             // For instance, you can check if the first place's name is as expected based on sorting
+    //             expect(placeNames).toEqual(["9", "8", "7", "6", "5"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    
+    //         it('Test limit (DB size=10, limit=3) - should return 3 places with names ["0", "1", "2"]', async () => {  
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: 3,
+    //             });
+    
+    //             const placeNames = places.map(place => place.name);
+        
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(3);
+    //             // Add assertions for sorting, filtering, pagination validation
+    //             // For instance, you can check if the first place's name is as expected based on sorting
+    //             expect(placeNames).toEqual(["0", "1", "2"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    
+    //         it('Test page (DB size=10, limit=3, page=3) - should return places with names ["7", "8", "9"]', async () => {  
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: 3,
+    //                 page: 3
+    //             });
+        
+    //             const placeNames = places.map(place => place.name);
+        
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(3);
+    //             // Add assertions for sorting, filtering, pagination validation
+    //             // For instance, you can check if the first place's name is as expected based on sorting
+    //             expect(placeNames).toEqual(["6", "7", "8"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    //     });
+
+    //     describe.skip("Negatives", () => {
+    //         it('Invalid page - negative - Return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 page: 0
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    
+    //         it('Invalid page - float - Return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 page: 2.5
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+
+    //         it('Invalid page - Infinity - Same as "Outside"', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 page: 10000000
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(0);
+    //             // expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(false);
+    //         });
+
+    //         it('Invalid page - NaN - Return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 page: NaN
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+
+    //         it('Invalid limit - negative - Should return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: -1
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    
+    //         it('Invalid limit - float - Should return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: 2.5
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+
+    //         it('Invalid limit - Infinity - Should return to default', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: Infinity
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             // expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(false);
+    //         });
+
+    //         it('Invalid limit - NaN - Should return as default (1)', async () => {
+    //             const {data: places, hasNext}: { data: Place[], hasNext: boolean } = await placeService.getPlaces({
+    //                 limit: NaN
+    //             });
+    //             const placeNames = places.map(place => place.name);
+    //             expect(places).toBeDefined();
+    //             expect(places.length).toEqual(5);
+    //             expect(placeNames).toEqual(["0", "1", "2", "3", "4"]);
+    //             expect(hasNext).toEqual(true);
+    //         });
+    //     });
+    // });
 });

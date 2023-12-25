@@ -88,7 +88,7 @@
 
 import { Request, Response } from 'express';
 import { PlaceService, getPlaceService } from '@/services/placeService';
-import { Place } from '@/models';
+import { Place, PlaceWithoutId } from '@/models';
 import { MongoDBSortOrder } from '@/utils/mongodb';
 
 function retrievePlaceService(): PlaceService {
@@ -98,8 +98,8 @@ function retrievePlaceService(): PlaceService {
 export const createPlace = async (req: Request, res: Response) => {
     try {
         const placeService = retrievePlaceService();
-        const { name, category, address, location, openingHours } = req.body;
-        const placeId = await placeService.createPlace({ name, category, address, location, openingHours });
+        const place: PlaceWithoutId = req.body;
+        const placeId = await placeService.createPlace(place);
         res.status(201).json({ placeId });
     } catch (error) {
         console.error('Error creating place:', error);
@@ -178,45 +178,6 @@ export const getPlaces = async (req: Request, res: Response) => {
     }
 };
 
-// // ChatGPT suggestion
-// export const getPlaces = async (req: Request, res: Response) => {
-//     try {
-//       const placeService = getPlaceService();
-  
-//       // Extract query parameters for sorting, filtering, and pagination
-//       const { sortBy, sortOrder, category, page, limit } = req.query;
-  
-//       // Define options object based on query parameters
-//       const options: any = {};
-  
-//       // Sorting
-//       if (sortBy && sortOrder) {
-//         options.sort = { [sortBy as string]: sortOrder === 'asc' ? 1 : -1 };
-//       }
-  
-//       // Filtering
-//       if (category) {
-//         options.filter = { category: category as string };
-//       }
-  
-//       // Pagination
-//       if (page && limit) {
-//         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-//         const pageSize = parseInt(limit as string);
-//         options.pagination = { skip, limit: pageSize };
-//       }
-  
-//       // Get places with applied options
-//       const places = await placeService.getPlaces(options);
-  
-//       res.json(places);
-//     } catch (error) {
-//       console.error('Error retrieving places:', error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//     }
-//   };
-
-
 export const updatePlace = async (req: Request, res: Response) => {
     try {
         const placeService = retrievePlaceService();
@@ -254,3 +215,40 @@ export const deletePlace = async (req: Request, res: Response) => {
     }
 };
 
+// // ChatGPT suggestion
+// export const getPlaces = async (req: Request, res: Response) => {
+//     try {
+//       const placeService = getPlaceService();
+  
+//       // Extract query parameters for sorting, filtering, and pagination
+//       const { sortBy, sortOrder, category, page, limit } = req.query;
+  
+//       // Define options object based on query parameters
+//       const options: any = {};
+  
+//       // Sorting
+//       if (sortBy && sortOrder) {
+//         options.sort = { [sortBy as string]: sortOrder === 'asc' ? 1 : -1 };
+//       }
+  
+//       // Filtering
+//       if (category) {
+//         options.filter = { category: category as string };
+//       }
+  
+//       // Pagination
+//       if (page && limit) {
+//         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+//         const pageSize = parseInt(limit as string);
+//         options.pagination = { skip, limit: pageSize };
+//       }
+  
+//       // Get places with applied options
+//       const places = await placeService.getPlaces(options);
+  
+//       res.json(places);
+//     } catch (error) {
+//       console.error('Error retrieving places:', error);
+//       res.status(500).json({ message: 'Internal Server Error' });
+//     }
+//   };

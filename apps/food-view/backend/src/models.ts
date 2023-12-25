@@ -1,3 +1,4 @@
+// File: src/models.ts
 export interface Review {
     _id: string;
     userId: string;
@@ -17,7 +18,7 @@ export interface Place {
         street: string;
         city: string;
         district: string;
-        postalCode: string;
+        // postalCode: string;
     };
     location: {
         type: string;
@@ -41,7 +42,6 @@ export interface User {
     updatedAt: Date;
 }
 
-export type UserWithoutId = Omit<User, '_id'>
-export type PlaceWithoutId = Omit<Place, '_id'>
-export type ReviewWithoutId = Omit<Review, '_id'>
-
+export type UserWithoutId = Omit<User, '_id'>;
+export type PlaceWithoutId = Omit<Place, '_id'>;
+export type ReviewWithoutId = Omit<Review, '_id'>;
