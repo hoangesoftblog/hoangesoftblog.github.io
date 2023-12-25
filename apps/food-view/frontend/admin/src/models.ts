@@ -47,3 +47,12 @@ export type UserWithoutId = Omit<User, '_id'>
 export type PlaceWithoutId = Omit<Place, '_id'>
 export type ReviewWithoutId = Omit<Review, '_id'>
 
+
+// Angular Form Control Status
+export type FormControlStatus = "valid" 
+    | "invalid" 
+    | "pending" 
+    | "pristine" 
+    | "dirty" 
+    | "touched" 
+    | "untouched";

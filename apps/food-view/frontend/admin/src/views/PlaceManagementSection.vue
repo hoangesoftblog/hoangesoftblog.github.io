@@ -1,27 +1,33 @@
+<!-- File: src/views/PlaceManagementSection.vue -->
 <template>
     <div>
         <!-- List View -->
-        <h2>Places Management</h2>
-
+        <div>
+            <h2>Places Management</h2>
+            <div>
+                <span>
+                    <label for="limit">Size: </label>
+                    <select v-model="limit" id="limit">
+                        <option value="5">5 per page</option>
+                        <option value="10">10 per page</option>
+                    </select>
+                </span>
+                <button @click="formMode='add'">Add places</button>
+            </div>
+        </div>
         <table>
             <caption>Places Management</caption>
             <thead>
                 <tr>
-                    <th @click="sort('name')">Name {{ sortIcon('name') }}</th>
-                    <th @click="sort('category')">Category {{ sortIcon('category') }}</th>
-                    <th @click="sort('address')">Address {{ sortIcon('address') }}</th>
-                    <th @click="sort('location')">Location {{ sortIcon('location') }}</th>
-                    <th @click="sort('openingHours')">Opening Hours {{ sortIcon('openingHours') }}</th>
+                    <th v-for="{ label, key } in tableHeaders" :key="key" @click="sort(key)">{{ label }} {{ sortIcon(key) }}
+                    </th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(place, index) in places" :key="place._id">
-                    <td>{{ place.name }}</td>
-                    <td>{{ place.category }}</td>
-                    <td>{{ place.address.city }}, {{ place.address.district }}, {{ place.address.street }}</td>
-                    <td>{{ place.location.coordinates }}</td>
-                    <td>{{ place.openingHours.start }} - {{ place.openingHours.end }}</td>
+                    <td v-for="{ key, display } in tableHeaders" :key="key">{{ (display?.(place)) ?? (place as any)[key] ??
+                        "" }}</td>
                     <td>
                         <button @click="editPlace(place)">Edit</button>
                         <button @click="deletePlace(place)">Delete</button>
@@ -33,25 +39,13 @@
 
         <!-- Pagination -->
         <div class="pagination">
-            <button @click="page--" :disabled="page === 1">Previous</button>
-            <span>Page {{ page }}</span>
-            <button @click="page++" :disabled="!hasNext">Next</button>
+            <button @click="page--" :disabled="page === 1">Previous </button>
+            <span> Page {{ page }} </span>
+            <button @click="page++" :disabled="!hasNext"> Next </button>
         </div>
 
-        <template>
-            <TableComponent :headers="tableHeaders" :data="places" />
-            <!-- Pagination -->
-            <PaginationComponent :currentPage="page" :hasNext="hasNext" @update-page="offsetPage" />
-        </template>
+        <PlaceForm v-if="formMode != ''" @saved="placeSaved" :form-mode="formMode" :edit-place-details="placeToEdit"/>
 
-        <template>
-            <!-- Add/Edit Place Form -->
-            <h3>Add/Edit Place</h3>
-            <!-- Form fields go here -->
-            <div class="actions">
-                <button @click="savePlace">Save</button>
-            </div>
-        </template>
     </div>
 </template>
   
@@ -61,11 +55,12 @@ import axios from 'axios'; // Assuming you're using axios for HTTP requests
 import { type Place } from "@/models";
 import TableComponent from "@/components/table.vue";
 import PaginationComponent from "@/components/pagination.vue";
+import AddPlaceForm from "@/components/PlaceForm/PlaceForm.vue";
 
 type SortOrder = 1 | -1;
 
-function parseSortOrder(config: any, sort: {column: string | null, direction: number}) {
-    if (!((sort.column == null))) {
+function parseSortOrder(config: any, sort: { column: string | null, direction: number }) {
+    if (sort.column != null) {
         config["sort"] = `${sort.direction == -1 ? "-" : ""}${sort.column}`
     }
     return config;
@@ -75,6 +70,7 @@ export default defineComponent({
     components: {
         TableComponent: TableComponent,
         PaginationComponent: PaginationComponent,
+        PlaceForm: AddPlaceForm
     },
     data() {
         return {
@@ -85,22 +81,35 @@ export default defineComponent({
             tableHeaders: [
                 { label: "Name", key: "name" },
                 { label: "Category", key: "category" },
-                { label: "Address", key: "address" },
-                { label: "Location", key: "location" },
-                { label: "Opening Hours", key: "openingHours" },
+                // { label: "Location", key: "location" },
+                {
+                    label: "Address",
+                    key: "address",
+                    // Todo: Make this to insert as HTML
+                    // https://vuejs.org/guide/essentials/template-syntax#raw-html
+                    display: (p: Place) => (`${p.address.city}, ${p.address.district}, ${p.address.street}`)
+                },
+                {
+                    label: "Opening Hours",
+                    key: "openingHours",
+                    display: (p: Place) => (`${p.openingHours.start} - ${p.openingHours.end}`)
+                },
                 // Add more headers as needed
             ],
-
+            
             // // Sorting config
-            sortConfig: { 
-                column: null, 
-                direction: 1, 
-            } as {column: string | null, direction: SortOrder},
-            searchConfig: {
-                page: this.page,
-                limit: this.limit,
-                sort: this.sortConfig,
-            },
+            sortConfig: {
+                column: null,
+                direction: 1,
+            } as { column: string | null, direction: SortOrder },
+            // searchConfig: {
+            //     page: this.page,
+            //     limit: this.limit,
+            //     sort: this.sortConfig,
+            // },
+
+            formMode: "" as "add" | "edit" | "",
+            placeToEdit: undefined as Place | undefined,
         };
     },
     mounted() {
@@ -110,7 +119,7 @@ export default defineComponent({
     methods: {
         async fetchPlaces() {
             console.log(`Fetching places for page ${this.page}`);
-            
+
             const config = {
                 page: this.page,
                 limit: this.limit,
@@ -118,7 +127,7 @@ export default defineComponent({
 
             const configAfter = parseSortOrder(config, this.sortConfig);
             const urlSearchParams = new URLSearchParams(configAfter);
-            
+
             try {
                 // Replace 'backendApiEndpoint' with the actual endpoint to fetch places
                 const response = await axios.get(`http://localhost:5172/places?${urlSearchParams}`);
@@ -131,22 +140,45 @@ export default defineComponent({
                 console.error('Error fetching places:', error);
             }
         },
-        editPlace(place: Place) {
+        async editPlace(place: Place) {
             // Handle edit functionality
             console.log("Editing place:", place);
+            this.formMode = "edit";
+            this.placeToEdit = {...place};
         },
-        deletePlace(place: Place) {
+        async addPlace(place: Place) {
+            this.page = 1;
+        },
+        async deletePlace(place: Place) {
             // Handle delete functionality
             console.log("Deleting place:", place);
+            try {
+                const response = await axios.delete(`http://localhost:5172/places/${place._id}`);
+                if (response.status !== 200) {
+                    const { data: { message } }: { data: { message: string } } = response.data;
+                    throw new Error(`${response.status.toString()} - ${response.statusText} - ${message}`)
+                }
+            }
+            catch (error) {
+                console.error('Error deleting place:', error);
+            }
+            finally {
+                this.page = 1;
+            }
+
+        },
+        async placeSaved() {
+            this.formMode = "";
+            await this.fetchPlaces();
         },
         viewDetails(place: Place) {
             // Handle view details functionality
             console.log("Viewing details for place:", place);
         },
-        savePlace() {
-            // Placeholder for save place functionality (to be implemented)
-            alert("Placeholder function for saving a place");
-        },
+        // savePlace() {
+        //     // Placeholder for save place functionality (to be implemented)
+        //     alert("Placeholder function for saving a place");
+        // },
         offsetPage(offset: number) {
             this.page = this.page + offset;
         },
@@ -172,6 +204,11 @@ export default defineComponent({
             this.page = 1;
         },
     },
+
+    //// Todo: Find ways to handle a redundant fetch:
+    ////// Scenario: page=2, now enable sorting.
+    ////// Watch sortConfig will pull once.
+    ////// And in sort(), page get updated, pull once more => 2 fetches in-a-row
     watch: {
         page() {
             // this.searchConfig = {
