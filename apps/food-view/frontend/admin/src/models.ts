@@ -19,7 +19,7 @@ export interface Place {
         street: string;
         city: string;
         district: string;
-        postalCode: string;
+        // postalCode: string;
     };
     location: {
         type: string;

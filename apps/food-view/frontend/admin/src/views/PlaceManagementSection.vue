@@ -2,52 +2,78 @@
 <template>
     <div>
         <!-- List View -->
-        <div>
-            <h2>Places Management</h2>
-            <div>
-                <span>
-                    <label for="limit">Size: </label>
-                    <select v-model="limit" id="limit">
-                        <option value="5">5 per page</option>
-                        <option value="10">10 per page</option>
-                    </select>
-                </span>
-                <button @click="formMode='add'">Add places</button>
+        <div class="mt-8 mb-4 flex flex-row items-center">
+            <h2 class="text-2xl font-bold mb-4 grow">Places Management</h2>
+            <div class="flex items-center mb-4">
+                <button @click="formMode = 'add'" class="bg-blue-500 text-white py-2 px-4 rounded">Add places</button>
             </div>
         </div>
-        <table>
-            <caption>Places Management</caption>
+
+        <table class="min-w-full border border-gray-300">
+            <caption class="text-lg font-bold mb-4">Places Management</caption>
             <thead>
                 <tr>
-                    <th v-for="{ label, key } in tableHeaders" :key="key" @click="sort(key)">{{ label }} {{ sortIcon(key) }}
-                    </th>
-                    <th>Actions</th>
+                    <th v-for="{ label, key } in tableHeaders" :key="key" @click="sort(key)"
+                        class="cursor-pointer bg-gray-200 px-4 py-2 text-left">{{ label }} {{ sortIcon(key) }}</th>
+                    <th class="bg-gray-200 px-4 py-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(place, index) in places" :key="place._id">
-                    <td v-for="{ key, display } in tableHeaders" :key="key">{{ (display?.(place)) ?? (place as any)[key] ??
-                        "" }}</td>
-                    <td>
-                        <button @click="editPlace(place)">Edit</button>
-                        <button @click="deletePlace(place)">Delete</button>
-                        <button @click="viewDetails(place)">Details</button>
+                    <td v-for="{ key, display } in tableHeaders" :key="key" class="border px-4 py-2">{{ (display?.(place))
+                        ?? (place as any)[key] ?? "" }}</td>
+                    <td class="border px-4 py-2">
+                        <button @click="editPlace(place)"
+                            class="bg-blue-500 text-white py-1 px-2 rounded mr-2">Edit</button>
+                        <button @click="deletePlace(place)"
+                            class="bg-red-500 text-white py-1 px-2 rounded mr-2">Delete</button>
+                        <button @click="viewDetails(place)"
+                            class="bg-green-500 text-white py-1 px-2 rounded">Details</button>
                     </td>
                 </tr>
             </tbody>
+            <tfoot>
+
+            </tfoot>
         </table>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <button @click="page--" :disabled="page === 1">Previous </button>
-            <span> Page {{ page }} </span>
-            <button @click="page++" :disabled="!hasNext"> Next </button>
+        <div class="flex flex-row items-center">
+            <span class="mr-4 flex-grow">
+                <label for="limit" class="mr-2">Size:</label>
+                <select v-model="limit" id="limit" class="border rounded py-1 px-2">
+                    <option value="5">5 per page</option>
+                    <option value="10">10 per page</option>
+                </select>
+            </span>
+            <!-- Pagination -->
+            <div class="mt-4">
+                <button @click="page--" :disabled="page === 1"
+                    class="bg-blue-500 text-white py-1 px-2 rounded mr-2 disabled:bg-gray-500">Previous
+                </button>
+                <pre style="display: inline-block;"> Page: {{ page }} </pre>
+                <button @click="page++" :disabled="!hasNext" class="bg-blue-500 text-white py-1 px-2 rounded ml-2 disabled:bg-gray-500"> Next
+                </button>
+            </div>
         </div>
 
-        <PlaceForm v-if="formMode != ''" @saved="placeSaved" :form-mode="formMode" :edit-place-details="placeToEdit"/>
-
+        <PlaceForm v-if="formMode != ''" :form-mode="formMode" :edit-place-details="placeToEdit" @saved="placeSaved"
+            @closed="formMode = ''" />
     </div>
 </template>
+  
+<style scoped>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add scoped styles as needed */
+.place-management-section {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+</style>
+  
   
 <script lang="ts">
 import { defineComponent } from 'vue';
@@ -58,6 +84,7 @@ import PaginationComponent from "@/components/pagination.vue";
 import AddPlaceForm from "@/components/PlaceForm/PlaceForm.vue";
 
 type SortOrder = 1 | -1;
+type FormMode = "add" | "edit" | "";
 
 function parseSortOrder(config: any, sort: { column: string | null, direction: number }) {
     if (sort.column != null) {
@@ -96,7 +123,7 @@ export default defineComponent({
                 },
                 // Add more headers as needed
             ],
-            
+
             // // Sorting config
             sortConfig: {
                 column: null,
@@ -108,7 +135,7 @@ export default defineComponent({
             //     sort: this.sortConfig,
             // },
 
-            formMode: "" as "add" | "edit" | "",
+            formMode: "add" as FormMode,
             placeToEdit: undefined as Place | undefined,
         };
     },
@@ -144,13 +171,17 @@ export default defineComponent({
             // Handle edit functionality
             console.log("Editing place:", place);
             this.formMode = "edit";
-            this.placeToEdit = {...place};
+            this.placeToEdit = { ...place };
         },
         async addPlace(place: Place) {
             this.page = 1;
         },
         async deletePlace(place: Place) {
             // Handle delete functionality
+            const answer = confirm("Do you want to delete?");
+            if (!answer) {
+                return;
+            }
             console.log("Deleting place:", place);
             try {
                 const response = await axios.delete(`http://localhost:5172/places/${place._id}`);
@@ -167,18 +198,15 @@ export default defineComponent({
             }
 
         },
-        async placeSaved() {
+        async placeSaved(formMode: FormMode, placeReturn: Place) {
             this.formMode = "";
+            console.log(arguments);
             await this.fetchPlaces();
         },
         viewDetails(place: Place) {
             // Handle view details functionality
             console.log("Viewing details for place:", place);
         },
-        // savePlace() {
-        //     // Placeholder for save place functionality (to be implemented)
-        //     alert("Placeholder function for saving a place");
-        // },
         offsetPage(offset: number) {
             this.page = this.page + offset;
         },
@@ -235,8 +263,4 @@ export default defineComponent({
     }
 });
 </script>
-  
-<style scoped>
-/* Add scoped styles as needed */
-</style>
   

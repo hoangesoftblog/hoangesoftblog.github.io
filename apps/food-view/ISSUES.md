@@ -127,3 +127,7 @@
 - Solution: This is the `note` from <https://www.mongodb.com/docs/drivers/node/upcoming/fundamentals/crud/read-operations/cursor/>
 > When you reach the last result through iteration or through an **at-once fetch**, the cursor is exhausted which means it ceases to respond to methods that access the results.
 - Calling with toArray(), or iterating over - is an **at-once fetch**, therefore, based on the `note`, the cursor is exhausted.
+
+
+## CSS: Input not auto-grow/shrink based on flexbox
+- Solution: Set width to 0
