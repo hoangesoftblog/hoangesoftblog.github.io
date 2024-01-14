@@ -131,3 +131,9 @@
 
 ## CSS: Input not auto-grow/shrink based on flexbox
 - Solution: Set width to 0
+
+
+## Backend: axios.get.mockResolvedValue() is highlighted as error
+- Solution: https://stackoverflow.com/a/76393284
+
+## FE: Mock Vitest Axios.get when return mockResolvedValue(mockResponse), please check carefully the type of Axios.get.

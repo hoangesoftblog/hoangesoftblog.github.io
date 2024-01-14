@@ -1,82 +1,89 @@
 <!-- File: src/components/PlaceForm.vue -->
 
 <template>
-    <div class="add-place-form">
-        <div class="flex flex-row items-center">
-            <h3 class="flex-grow">{{ formMode === 'add' ? 'Add' : 'Edit' }} Place</h3>
-            <button class="close-button" @click="$emit('closed')">Close</button>
-        </div>
-        <div class="error" v-if="isFormInvalid">
-            Please fill in all required fields and correct validation errors.
-        </div>
-        <div class="form-group">
-            <label for="placeName">Name:</label>
-            <div class="form-group-input"><input v-model="newPlace.name" type="text" id="placeName" required /></div>
-            <span v-if="!newPlace.name" class="error">Name is required.</span>
-        </div>
-        <div class="form-group">
-            <label for="placeCategory">Category:</label>
-            <div class="form-group-input">
-                <input v-model="newPlace.category" type="text" id="placeCategory" required />
+    <transition name="dialog-fade">
+        <div class="dialog-overlay">
+            <div class="dialog-content">
+                <div class="add-place-form">
+                    <div class="flex flex-row items-center">
+                        <h3 class="flex-grow">{{ formMode === 'add' ? 'Add' : 'Edit' }} Place</h3>
+                        <button class="close-button" @click="$emit('closed')">Close</button>
+                    </div>
+                    <div class="error" v-if="isFormInvalid">
+                        Please fill in all required fields and correct validation errors.
+                    </div>
+                    <div class="form-group">
+                        <label for="placeName">Name:</label>
+                        <div class="form-group-input"><input v-model="newPlace.name" type="text" id="placeName" required /></div>
+                        <span v-if="!newPlace.name" class="error">Name is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeCategory">Category:</label>
+                        <div class="form-group-input">
+                            <input v-model="newPlace.category" type="text" id="placeCategory" required />
+                        </div>
+                        <span v-if="!newPlace.category" class="error">Category is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeStreet">Street:</label>
+                        <div class="form-group-input">
+                            <input v-model="newPlace.address.street" type="text" id="placeStreet" required />
+                        </div>
+                        <span v-if="!newPlace.address.street" class="error">Street is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeCity">City:</label>
+                        <div class="form-group-input">
+                            <input v-model="newPlace.address.city" type="text" id="placeCity" required />
+                        </div>
+                        <span v-if="!newPlace.address.city" class="error">City is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeDistrict">District:</label>
+                        <div class="form-group-input">
+                            <input v-model="newPlace.address.district" type="text" id="placeDistrict" required />
+                        </div>
+                        <span v-if="!newPlace.address.district" class="error">District is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude - Latitude:</label>
+                        <div class="flex flex-row items-center form-group-input">
+                            <input v-model.number="newPlace.location.coordinates[0]" type="text" id="placeLongitude" required />
+                            <pre class="inline text-2xl"> - </pre>
+                            <input v-model.number="newPlace.location.coordinates[1]" type="text" id="placeLatitude" required />
+                        </div>
+                        <div class="flex flex-col">
+                            <span v-if="!newPlace.location.coordinates[0]" class="error">Longitude is required.</span>
+                            <span v-if="!newPlace.location.coordinates[1]" class="error">Latitude is required.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Opening Hours:</label>
+                        <div class="flex flex-row items-center form-group-input">
+                            <!-- The specified value "07:00AM" does not conform to the required format.  
+                                The format is "HH:mm", "HH:mm:ss" or "HH:mm:ss.SSS" where HH is 00-23, mm is 00-59, ss is 00-59, and SSS is 000-999. -->
+                            <input v-model="newPlace.openingHours.start" type="time" id="placeStartTime" required
+                                @change="(e) => { console.log(e); }" />
+                            <pre class="inline text-2xl"> - </pre>
+                            <input v-model="newPlace.openingHours.end" type="time" id="placeEndTime" required />
+                        </div>
+                        <div class="flex flex-col">
+                            <span v-if="!newPlace.openingHours.start" class="error">Opening Hours Start is required.</span>
+                            <span v-if="!newPlace.openingHours.end" class="error">Opening Hours End is required.</span>
+                            <span v-if="(newPlace.openingHours.start > newPlace.openingHours.end)" class="error">
+                                Opening Hours Start must be larger than Opening Hours End.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                    </div>
+                    <div class="actions">
+                        <button @click="savePlace" :disabled="isFormInvalid">Save</button>
+                    </div>
+                </div>
             </div>
-            <span v-if="!newPlace.category" class="error">Category is required.</span>
         </div>
-        <div class="form-group">
-            <label for="placeStreet">Street:</label>
-            <div class="form-group-input">
-                <input v-model="newPlace.address.street" type="text" id="placeStreet" required />
-            </div>
-            <span v-if="!newPlace.address.street" class="error">Street is required.</span>
-        </div>
-        <div class="form-group">
-            <label for="placeCity">City:</label>
-            <div class="form-group-input">
-                <input v-model="newPlace.address.city" type="text" id="placeCity" required />
-            </div>
-            <span v-if="!newPlace.address.city" class="error">City is required.</span>
-        </div>
-        <div class="form-group">
-            <label for="placeDistrict">District:</label>
-            <div class="form-group-input">
-                <input v-model="newPlace.address.district" type="text" id="placeDistrict" required />
-            </div>
-            <span v-if="!newPlace.address.district" class="error">District is required.</span>
-        </div>
-        <div class="form-group">
-            <label>Longitude - Latitude:</label>
-            <div class="flex flex-row items-center form-group-input">
-                <input v-model.number="newPlace.location.coordinates[0]" type="text" id="placeLongitude" required />
-                <pre class="inline text-2xl"> - </pre>
-                <input v-model.number="newPlace.location.coordinates[1]" type="text" id="placeLatitude" required />
-            </div>
-            <div class="flex flex-col">
-                <span v-if="!newPlace.location.coordinates[0]" class="error">Longitude is required.</span>
-                <span v-if="!newPlace.location.coordinates[1]" class="error">Latitude is required.</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Opening Hours:</label>
-            <div class="flex flex-row items-center form-group-input">
-                <input v-model="newPlace.openingHours.start" type="time" id="placeStartTime" required
-                    @change="(e) => { console.log(e); }" />
-                <pre class="inline text-2xl"> - </pre>
-                <input v-model="newPlace.openingHours.end" type="time" id="placeEndTime" required />
-            </div>
-            <div class="flex flex-col">
-                <span v-if="!newPlace.openingHours.start" class="error">Opening Hours Start is required.</span>
-                <span v-if="!newPlace.openingHours.end" class="error">Opening Hours End is required.</span>
-                <span v-if="(newPlace.openingHours.start > newPlace.openingHours.end)" class="error">
-                    Opening Hours Start must be larger than Opening Hours End.
-                </span>
-            </div>
-        </div>
-        <div class="form-group">
-        </div>
-
-        <div class="actions">
-            <button @click="savePlace" :disabled="isFormInvalid">Save</button>
-        </div>
-    </div>
+    </transition>
 </template>
 <style scoped>
 @tailwind base;
@@ -92,6 +99,24 @@
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;
+}
+
+.dialog-overlay {
+   position: fixed;
+   z-index: 1000;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   overflow: auto;
+   background-color: rgba(0,0,0,0.4);
+}
+
+.dialog-content {
+   margin: 15% auto;
+   /* padding: 20px; */
+   /* border: 1px solid #888; */
+   /* width: 80%; */
 }
 
 h3 {
@@ -167,7 +192,7 @@ import { defineComponent, type PropType } from 'vue';
 import axios from 'axios';
 import { type Place, type PlaceWithoutId } from "@/models";
 
-const defaultPlace = {
+const defaultPlace = Object.freeze({
     name: '',
     category: '',
     address: {
@@ -184,7 +209,11 @@ const defaultPlace = {
         start: '',
         end: '',
     },
-};
+}) as PlaceWithoutId;
+
+function cloneObject<T>(obj: T): T {
+    return ({...obj});
+}
 
 export default defineComponent({
     props: {
@@ -201,7 +230,7 @@ export default defineComponent({
     },
     data() {
         return {
-            newPlace: structuredClone(defaultPlace) as PlaceWithoutId,
+            newPlace: cloneObject(defaultPlace) as PlaceWithoutId | Place,
         };
     },
     computed: {
@@ -224,20 +253,9 @@ export default defineComponent({
         },
     },
     watch: {
-        editPlaceDetails: {
-            handler(value) {
-                if (this.formMode == "add") {
-                    this.newPlace = Object.assign(this.newPlace, value) as PlaceWithoutId;
-                } else if (this.formMode == "edit") {
-                    this.newPlace = Object.assign(this.newPlace, value) as Place;
-                }
-                console.log(this.newPlace);
-            },
-            immediate: true,
-        },
         newPlace: {
             handler(value) {
-                console.log(arguments);
+                // console.log(arguments);
             },
             deep: true
         }
@@ -269,24 +287,32 @@ export default defineComponent({
             }
         },
         async editPlace() {
-            try {
-                const response = await axios.put(`http://localhost:5172/places/${(this.newPlace as Place)._id}`, this.newPlace);
-                if (response.status === 200) {
-                    // Successfully updated the place, clear the form and fetch updated places
-                    this.resetForm();
-                    // Emit an event to inform the parent component about the successful addition
-                    this.$emit('saved', "edit", this.newPlace);
-                } else {
-                    alert(`Failed to edit place. Status: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Error editting place:', this.newPlace, error);
-            } finally {
-            }
+            this.$emit('saved', "edit", this.newPlace);
+            // try {
+            //     const response = await axios.put(`http://localhost:5172/places/${(this.newPlace as Place)._id}`, this.newPlace);
+            //     if (response.status === 200) {
+            //         // Successfully updated the place, clear the form and fetch updated places
+            //         this.resetForm();
+            //         // Emit an event to inform the parent component about the successful addition
+            //         this.$emit('saved', "edit", this.newPlace);
+            //     } else {
+            //         alert(`Failed to edit place. Status: ${response.status}`);
+            //     }
+            // } catch (error) {
+            //     console.error('Error editting place:', this.newPlace, error);
+            // } finally {
+            // }
         },
         resetForm() {
-            this.newPlace = structuredClone(defaultPlace) as PlaceWithoutId;
+            this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
         },
-    }
+    },
+    created() {
+        if (this.formMode == "add") {
+            this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
+        } else if (this.formMode == "edit") {
+            this.newPlace = cloneObject(this.editPlaceDetails) as Place;
+        }
+    },
 });
 </script>

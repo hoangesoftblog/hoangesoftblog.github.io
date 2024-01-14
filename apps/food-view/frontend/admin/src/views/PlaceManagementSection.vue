@@ -5,7 +5,7 @@
         <div class="mt-8 mb-4 flex flex-row items-center">
             <h2 class="text-2xl font-bold mb-4 grow">Places Management</h2>
             <div class="flex items-center mb-4">
-                <button @click="formMode = 'add'" class="bg-blue-500 text-white py-2 px-4 rounded">Add places</button>
+                <button @click="addBtnClick()" class="bg-blue-500 text-white py-2 px-4 rounded">Add place</button>
             </div>
         </div>
 
@@ -14,8 +14,13 @@
             <thead>
                 <tr>
                     <th v-for="{ label, key } in tableHeaders" :key="key" @click="sort(key)"
-                        class="cursor-pointer bg-gray-200 px-4 py-2 text-left">{{ label }} {{ sortIcon(key) }}</th>
-                    <th class="bg-gray-200 px-4 py-2">Actions</th>
+                        class="cursor-pointer bg-gray-200 px-4 py-2 text-left">
+                        <div class="flex flex-row flex-nowrap gap-2">
+                            <p class="grow">{{ label }}</p>
+                            <p>{{ sortIcon(key) }}</p>
+                        </div>
+                    </th>
+                    <th class="bg-gray-200 px-4 py-2 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,12 +28,14 @@
                     <td v-for="{ key, display } in tableHeaders" :key="key" class="border px-4 py-2">{{ (display?.(place))
                         ?? (place as any)[key] ?? "" }}</td>
                     <td class="border px-4 py-2">
-                        <button @click="editPlace(place)"
-                            class="bg-blue-500 text-white py-1 px-2 rounded mr-2">Edit</button>
-                        <button @click="deletePlace(place)"
-                            class="bg-red-500 text-white py-1 px-2 rounded mr-2">Delete</button>
-                        <button @click="viewDetails(place)"
-                            class="bg-green-500 text-white py-1 px-2 rounded">Details</button>
+                        <div class="flex flex-row flex-nowrap gap-2">
+                            <button @click="viewDetails(place)"
+                                class="bg-green-500 text-white py-1 px-2 rounded">Details</button>
+                            <button @click="editBtnClick(place)"
+                                class="bg-blue-500 text-white py-1 px-2 rounded">Edit</button>
+                            <button @click="deletePlace(place)"
+                                    class="bg-red-500 text-white py-1 px-2 rounded">Delete</button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -81,7 +88,7 @@ import axios from 'axios'; // Assuming you're using axios for HTTP requests
 import { type Place } from "@/models";
 import TableComponent from "@/components/table.vue";
 import PaginationComponent from "@/components/pagination.vue";
-import AddPlaceForm from "@/components/PlaceForm/PlaceForm.vue";
+import PlaceForm from "@/components/PlaceForm/PlaceForm.vue";
 
 type SortOrder = 1 | -1;
 type FormMode = "add" | "edit" | "";
@@ -97,7 +104,7 @@ export default defineComponent({
     components: {
         TableComponent: TableComponent,
         PaginationComponent: PaginationComponent,
-        PlaceForm: AddPlaceForm
+        PlaceForm: PlaceForm
     },
     data() {
         return {
@@ -105,6 +112,11 @@ export default defineComponent({
             limit: 5,
             page: 1,
             hasNext: true,
+            // // Sorting config
+            sortConfig: {column: null, direction: 1,} as 
+                { column: string | null, direction: SortOrder },
+            formMode: "" as FormMode,
+            placeToEdit: undefined as Place | undefined,
             tableHeaders: [
                 { label: "Name", key: "name" },
                 { label: "Category", key: "category" },
@@ -115,28 +127,12 @@ export default defineComponent({
                     // Todo: Make this to insert as HTML
                     // https://vuejs.org/guide/essentials/template-syntax#raw-html
                     display: (p: Place) => (`${p.address.city}, ${p.address.district}, ${p.address.street}`)
-                },
-                {
+                }, {
                     label: "Opening Hours",
                     key: "openingHours",
                     display: (p: Place) => (`${p.openingHours.start} - ${p.openingHours.end}`)
                 },
-                // Add more headers as needed
             ],
-
-            // // Sorting config
-            sortConfig: {
-                column: null,
-                direction: 1,
-            } as { column: string | null, direction: SortOrder },
-            // searchConfig: {
-            //     page: this.page,
-            //     limit: this.limit,
-            //     sort: this.sortConfig,
-            // },
-
-            formMode: "add" as FormMode,
-            placeToEdit: undefined as Place | undefined,
         };
     },
     mounted() {
@@ -147,19 +143,15 @@ export default defineComponent({
         async fetchPlaces() {
             console.log(`Fetching places for page ${this.page}`);
 
-            const config = {
+            const configAfter = parseSortOrder({
                 page: this.page,
                 limit: this.limit,
-            };
-
-            const configAfter = parseSortOrder(config, this.sortConfig);
+            }, this.sortConfig);
             const urlSearchParams = new URLSearchParams(configAfter);
 
             try {
-                // Replace 'backendApiEndpoint' with the actual endpoint to fetch places
                 const response = await axios.get(`http://localhost:5172/places?${urlSearchParams}`);
                 console.log("Fetching places done");
-                // Update the 'places' data with the fetched places
                 const data: { data: Place[], hasNext: boolean } = response.data;
                 this.places = data.data;
                 this.hasNext = data.hasNext;
@@ -168,13 +160,26 @@ export default defineComponent({
             }
         },
         async editPlace(place: Place) {
-            // Handle edit functionality
-            console.log("Editing place:", place);
-            this.formMode = "edit";
-            this.placeToEdit = { ...place };
+            console.log("Edit Place:", place);
+            try {
+                const response = await axios.put(`http://localhost:5172/places/${(place as Place)._id}`, place);
+                if (response.status === 200) {
+                    // Successfully updated the place, clear the form and fetch updated places
+                    // Emit an event to inform the parent component about the successful addition
+                    alert("Successfully updated the place");
+                    this.closePlaceForm();
+                } else {
+                    alert(`Failed to edit place. Status: ${response.status}`);
+                }
+            } catch (error) {
+                alert(`Failed to edit place. Error: ${error}`);
+
+                console.error('Error editting place:', place, error);
+            } finally {
+            }
         },
         async addPlace(place: Place) {
-            this.page = 1;
+            console.log("Add place", place);
         },
         async deletePlace(place: Place) {
             // Handle delete functionality
@@ -196,11 +201,27 @@ export default defineComponent({
             finally {
                 this.page = 1;
             }
-
+        },
+        
+        async addBtnClick() {
+            console.log("addBtnClick:");
+            this.formMode = "add";
+            this.page = 1;
+        },
+        async editBtnClick(place: Place) {
+            // Handle edit functionality
+            console.log("editBtnClick:", place);
+            this.formMode = "edit";
+            this.placeToEdit = { ...place };
         },
         async placeSaved(formMode: FormMode, placeReturn: Place) {
-            this.formMode = "";
-            console.log(arguments);
+            if (formMode == "edit") {
+                await this.editPlace(placeReturn);
+            }
+            else if (formMode == "add") {
+                await this.addPlace(placeReturn);
+            }
+            // console.log(arguments);
             await this.fetchPlaces();
         },
         viewDetails(place: Place) {
@@ -218,6 +239,9 @@ export default defineComponent({
             }
             return ''; // No icon for non-sorted columns
         },
+        closePlaceForm() {
+            this.formMode = "";
+        },
         sort(column: string) {
             if (this.sortConfig.column === column) {
                 // Toggle sort direction if the same column is clicked
@@ -229,8 +253,12 @@ export default defineComponent({
             }
 
             // Reset page to 1 after sorting
-            this.page = 1;
+            this.refresh();
         },
+        refresh() {
+            this.page = 1;
+            // this.fetchPlaces();
+        }
     },
 
     //// Todo: Find ways to handle a redundant fetch:

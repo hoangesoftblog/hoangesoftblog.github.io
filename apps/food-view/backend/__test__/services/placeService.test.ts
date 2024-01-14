@@ -51,7 +51,7 @@ describe('PlaceService', () => {
 
         // Create sample data before each test
         const mockData = mockOrderPlaces;
-        insertedIds = await placeService.createPlaces(mockData as Place[]);
+        insertedIds = await placeService.createPlaces(mockData as any as PlaceWithoutId[]);
         samplePlaceId = insertedIds['0'] as string | ObjectId;
     });
 
