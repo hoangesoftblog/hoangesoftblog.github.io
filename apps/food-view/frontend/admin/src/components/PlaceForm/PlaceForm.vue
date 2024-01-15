@@ -189,7 +189,6 @@ button:disabled {
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import axios from 'axios';
 import { type Place, type PlaceWithoutId } from "@/models";
 
 const defaultPlace = Object.freeze({
@@ -223,9 +222,9 @@ export default defineComponent({
             required: true,
         },
         // Add a prop for the place details when in edit mode
-        editPlaceDetails: {
+        placeProps: {
             type: Object as PropType<PlaceWithoutId>,
-            default: () => ({} as PlaceWithoutId),
+            default: () => (cloneObject(defaultPlace)),
         },
     },
     data() {
@@ -270,49 +269,26 @@ export default defineComponent({
             }
         },
         async addPlace() {
-            try {
-                const response = await axios.post('http://localhost:5172/places', this.newPlace);
-                if (response.status === 201) {
-                    // Successfully added the place, clear the form and fetch updated places
-                    this.resetForm();
-                    // Emit an event to inform the parent component about the successful addition
-                    this.$emit('saved', "add", this.newPlace);
-                } else {
-                    alert(`Failed to add place. Status: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Error adding place:', error);
-            } finally {
-
-            }
+            this.$emit('saved', "add", this.newPlace);
         },
         async editPlace() {
             this.$emit('saved', "edit", this.newPlace);
-            // try {
-            //     const response = await axios.put(`http://localhost:5172/places/${(this.newPlace as Place)._id}`, this.newPlace);
-            //     if (response.status === 200) {
-            //         // Successfully updated the place, clear the form and fetch updated places
-            //         this.resetForm();
-            //         // Emit an event to inform the parent component about the successful addition
-            //         this.$emit('saved', "edit", this.newPlace);
-            //     } else {
-            //         alert(`Failed to edit place. Status: ${response.status}`);
-            //     }
-            // } catch (error) {
-            //     console.error('Error editting place:', this.newPlace, error);
-            // } finally {
-            // }
         },
         resetForm() {
-            this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
+            if (this.formMode == "edit") {
+                this.newPlace = cloneObject(this.placeProps) as Place;
+            }
+            else {
+                this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
+            } 
         },
     },
     created() {
-        if (this.formMode == "add") {
-            this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
-        } else if (this.formMode == "edit") {
-            this.newPlace = cloneObject(this.editPlaceDetails) as Place;
+        if (this.formMode == "edit") {
+            this.newPlace = cloneObject(this.placeProps) as Place;
         }
+
+        console.log("New place: ", this.newPlace);
     },
 });
 </script>

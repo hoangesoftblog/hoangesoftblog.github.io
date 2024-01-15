@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <PlaceForm v-if="formMode != ''" :form-mode="formMode" :edit-place-details="placeToEdit" @saved="placeSaved"
+        <PlaceForm v-if="formMode != ''" :form-mode="formMode" :place-props="placeToEdit" @saved="placeSaved"
             @closed="formMode = ''" />
     </div>
 </template>
@@ -104,7 +104,7 @@ export default defineComponent({
     components: {
         TableComponent: TableComponent,
         PaginationComponent: PaginationComponent,
-        PlaceForm: PlaceForm
+        PlaceForm: PlaceForm,
     },
     data() {
         return {
@@ -113,8 +113,8 @@ export default defineComponent({
             page: 1,
             hasNext: true,
             // // Sorting config
-            sortConfig: {column: null, direction: 1,} as 
-                { column: string | null, direction: SortOrder },
+            sortConfig: {column: null, direction: 1,} as { column: string | null, direction: SortOrder },
+            // PlaceForm.vue
             formMode: "" as FormMode,
             placeToEdit: undefined as Place | undefined,
             tableHeaders: [
@@ -180,6 +180,23 @@ export default defineComponent({
         },
         async addPlace(place: Place) {
             console.log("Add place", place);
+            try {
+                const response = await axios.post('http://localhost:5172/places', place);
+                if (response.status === 201) {
+                    // Successfully added the place, clear the form and fetch updated places
+                    alert("Successfully add the place");
+                    this.closePlaceForm();
+                    // Emit an event to inform the parent component about the successful addition
+                } else {
+                    alert(`Failed to add place. Status: ${response.status}`);
+                }
+            } catch (error) {
+                alert(`Failed to edit place. Error: ${error}`);
+
+                console.error('Error adding place:', error);
+            } finally {
+
+            }
         },
         async deletePlace(place: Place) {
             // Handle delete functionality
@@ -202,6 +219,16 @@ export default defineComponent({
                 this.page = 1;
             }
         },
+        async placeSaved(formMode: FormMode, placeReturn: Place) {
+            if (formMode == "edit") {
+                await this.editPlace(placeReturn);
+            }
+            else if (formMode == "add") {
+                await this.addPlace(placeReturn);
+            }
+            // console.log(arguments);
+            await this.fetchPlaces();
+        },
         
         async addBtnClick() {
             console.log("addBtnClick:");
@@ -213,16 +240,6 @@ export default defineComponent({
             console.log("editBtnClick:", place);
             this.formMode = "edit";
             this.placeToEdit = { ...place };
-        },
-        async placeSaved(formMode: FormMode, placeReturn: Place) {
-            if (formMode == "edit") {
-                await this.editPlace(placeReturn);
-            }
-            else if (formMode == "add") {
-                await this.addPlace(placeReturn);
-            }
-            // console.log(arguments);
-            await this.fetchPlaces();
         },
         viewDetails(place: Place) {
             // Handle view details functionality
@@ -241,6 +258,7 @@ export default defineComponent({
         },
         closePlaceForm() {
             this.formMode = "";
+            this.placeToEdit = undefined;
         },
         sort(column: string) {
             if (this.sortConfig.column === column) {
