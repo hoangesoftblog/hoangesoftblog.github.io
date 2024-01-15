@@ -65,6 +65,8 @@
 
         <PlaceForm v-if="formMode != ''" :form-mode="formMode" :place-props="placeToEdit" @saved="placeSaved"
             @closed="formMode = ''" />
+        <PlaceDetail v-if="selectedPlace" :place="selectedPlace" @closed="selectedPlace = undefined;"/>
+
     </div>
 </template>
   
@@ -89,6 +91,7 @@ import { type Place } from "@/models";
 import TableComponent from "@/components/table.vue";
 import PaginationComponent from "@/components/pagination.vue";
 import PlaceForm from "@/components/PlaceForm/PlaceForm.vue";
+import PlaceDetail from '@/components/PlaceDetail/PlaceDetail.vue';
 
 type SortOrder = 1 | -1;
 type FormMode = "add" | "edit" | "";
@@ -105,6 +108,7 @@ export default defineComponent({
         TableComponent: TableComponent,
         PaginationComponent: PaginationComponent,
         PlaceForm: PlaceForm,
+        PlaceDetail
     },
     data() {
         return {
@@ -117,6 +121,8 @@ export default defineComponent({
             // PlaceForm.vue
             formMode: "" as FormMode,
             placeToEdit: undefined as Place | undefined,
+            // PlaceDetail.vue
+            selectedPlace: undefined as Place | undefined,
             tableHeaders: [
                 { label: "Name", key: "name" },
                 { label: "Category", key: "category" },
@@ -244,6 +250,8 @@ export default defineComponent({
         viewDetails(place: Place) {
             // Handle view details functionality
             console.log("Viewing details for place:", place);
+
+            this.selectedPlace = place;
         },
         offsetPage(offset: number) {
             this.page = this.page + offset;
