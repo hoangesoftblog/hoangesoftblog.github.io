@@ -1,3 +1,4 @@
+<!-- File: src/components/PlaceDetail/PlaceDetail.vue -->
 <template>
     <!-- Todo: Beautify this component -->
     <div class="modal">

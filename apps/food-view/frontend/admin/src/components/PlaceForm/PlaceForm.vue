@@ -61,7 +61,7 @@
                         <label>Opening Hours:</label>
                         <div class="flex flex-row items-center form-group-input">
                             <!-- The specified value "07:00AM" does not conform to the required format.  
-                                The format is "HH:mm", "HH:mm:ss" or "HH:mm:ss.SSS" where HH is 00-23, mm is 00-59, ss is 00-59, and SSS is 000-999. -->
+                            The format is "HH:mm", "HH:mm:ss" or "HH:mm:ss.SSS" where HH is 00-23, mm is 00-59, ss is 00-59, and SSS is 000-999. -->
                             <input v-model="newPlace.openingHours.start" type="time" id="placeStartTime" required
                                 @change="(e) => { console.log(e); }" />
                             <pre class="inline text-2xl"> - </pre>
@@ -211,7 +211,10 @@ const defaultPlace = Object.freeze({
 }) as PlaceWithoutId;
 
 function cloneObject<T>(obj: T): T {
-    return ({...obj});
+    let newObject = Object.assign({}, obj);
+    console.log('cloneObject');
+    console.log(newObject == obj);
+    return newObject;
 }
 
 export default defineComponent({
@@ -222,8 +225,10 @@ export default defineComponent({
             required: true,
         },
         // Add a prop for the place details when in edit mode
-        placeProps: {
-            type: Object as PropType<PlaceWithoutId>,
+        // Todo: Check this - make "place" props the initial value for "newPlace"
+        // https://vuejs.org/guide/components/props.html#one-way-data-flow
+        place: {
+            type: Object as PropType<PlaceWithoutId | Place>,
             default: () => (cloneObject(defaultPlace)),
         },
     },
@@ -276,7 +281,7 @@ export default defineComponent({
         },
         resetForm() {
             if (this.formMode == "edit") {
-                this.newPlace = cloneObject(this.placeProps) as Place;
+                this.newPlace = cloneObject(this.place) as Place;
             }
             else {
                 this.newPlace = cloneObject(defaultPlace) as PlaceWithoutId;
@@ -285,7 +290,7 @@ export default defineComponent({
     },
     created() {
         if (this.formMode == "edit") {
-            this.newPlace = cloneObject(this.placeProps) as Place;
+            this.newPlace = cloneObject(this.place) as Place;
         }
 
         console.log("New place: ", this.newPlace);

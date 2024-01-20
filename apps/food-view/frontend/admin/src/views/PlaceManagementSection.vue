@@ -10,14 +10,14 @@
         </div>
 
         <table class="min-w-full border border-gray-300">
-            <caption class="text-lg font-bold mb-4">Places Management</caption>
+            <!-- <caption class="text-lg font-bold mb-4">Places Management</caption> -->
             <thead>
                 <tr>
                     <th v-for="{ label, key } in tableHeaders" :key="key" @click="sort(key)"
                         class="cursor-pointer bg-gray-200 px-4 py-2 text-left">
                         <div class="flex flex-row flex-nowrap gap-2">
                             <p class="grow">{{ label }}</p>
-                            <p>{{ sortIcon(key) }}</p>
+                            <pre>{{ sortIcon(key) || " " }}</pre>
                         </div>
                     </th>
                     <th class="bg-gray-200 px-4 py-2 text-left">Actions</th>
@@ -44,8 +44,8 @@
             </tfoot>
         </table>
 
-        <div class="flex flex-row items-center">
-            <span class="mr-4 flex-grow">
+        <div class="flex flex-row items-center mt-4">
+            <span class=" mr-4 flex-grow">
                 <label for="limit" class="mr-2">Size:</label>
                 <select v-model="limit" id="limit" class="border rounded py-1 px-2">
                     <option value="5">5 per page</option>
@@ -53,7 +53,7 @@
                 </select>
             </span>
             <!-- Pagination -->
-            <div class="mt-4">
+            <div class="">
                 <button @click="page--" :disabled="page === 1"
                     class="bg-blue-500 text-white py-1 px-2 rounded mr-2 disabled:bg-gray-500">Previous
                 </button>
@@ -63,10 +63,9 @@
             </div>
         </div>
 
-        <PlaceForm v-if="formMode != ''" :form-mode="formMode" :place-props="placeToEdit" @saved="placeSaved"
+        <PlaceForm v-if="formMode != ''" :form-mode="formMode" :place="placeToEdit" @saved="placeSaved"
             @closed="formMode = ''" />
         <PlaceDetail v-if="selectedPlace" :place="selectedPlace" @closed="selectedPlace = undefined;"/>
-
     </div>
 </template>
   
@@ -134,7 +133,7 @@ export default defineComponent({
                     // https://vuejs.org/guide/essentials/template-syntax#raw-html
                     display: (p: Place) => (`${p.address.city}, ${p.address.district}, ${p.address.street}`)
                 }, {
-                    label: "Opening Hours",
+                    label: "Hours",
                     key: "openingHours",
                     display: (p: Place) => (`${p.openingHours.start} - ${p.openingHours.end}`)
                 },
