@@ -317,12 +317,18 @@ export default defineComponent({
             //     sort: this.sortConfig,
             //     limit: this.limit,
             // }
-            this.fetchPlaces();
+            if (this.query) {
+                this.search();
+            }
+            this.fetchPlaces({page: this.page, limit: this.limit, sort: this.sortConfig});
         },
         sortConfig: {
             deep: true,
-            handler: "fetchPlaces",
+            // handler: "fetchPlaces",
             // immediate: true,
+            handler: function() {
+                this.fetchPlaces({page: this.page, limit: this.limit, sort: this.sortConfig});
+            }
             
             // handler: function() {
             //     this.searchConfig = {
@@ -334,7 +340,7 @@ export default defineComponent({
         },
         limit: {
             handler: function() {
-                this.fetchPlaces({limit: this.limit})
+                this.fetchPlaces({page: this.page, limit: this.limit, sort: this.sortConfig});
             },
         }
         // searchConfig() {
