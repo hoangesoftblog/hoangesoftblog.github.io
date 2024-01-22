@@ -153,19 +153,24 @@ function parseSortOrder(order: string | string[] | undefined): { [x: string]: Mo
 
 export const getPlaces = async (req: Request, res: Response) => {
     try {
-        console.log('getPlaces', req);
+        // console.log('getPlaces', req);
+        const query = req.query;
+        console.log('getPlaces parse value', query);
 
         const placeService = retrievePlaceService();
-
-        const query = req.query;
-        const { sort: sortQuery, page: pageStr = "", limit: limitStr = "" }: { sort?: string | string[], page?: string, limit?: string } = query;
+        const { q, sort: sortQuery, page: pageStr = "", limit: limitStr = "" }: { q?: string, sort?: string | string[], page?: string, limit?: string } = query;
         const page = parseInt(pageStr) || 1;
         const limit = parseInt(limitStr) || 5;
         const sort = parseSortOrder(sortQuery);
 
-        console.log('getPlaces parse value', { page, limit, sort });
 
-        const places = await placeService.getPlaces({ page, limit, sort });
+        let places;
+        if (q) {
+            places = await placeService.searchPlaces({q, page, limit, sort})
+        }
+        else {
+            places = await placeService.getPlaces({ page, limit, sort });
+        }
 
         // if (!place) {
         //   return res.status(404).json({ message: 'Place not found' });

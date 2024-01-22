@@ -12,7 +12,20 @@ export class PlaceService {
   //   this.collection = db.collection<Place>(collectionName);
   // }
 
-  constructor(private collection: Collection<Place>){}
+  constructor(private collection: Collection<Place>){
+    //// https://www.mongodb.com/docs/drivers/node/current/fundamentals/indexes/#text-indexes
+    
+    //// Can only create with MongoClient.strct = false;
+    //// https://www.mongodb.com/community/forums/t/bug-with-reproducing-instructions-node-js-driver-error-when-using-text-index/238994/3
+    // collection.createIndex({
+    //   name: "text", category: "text", 
+    //   "address.city": "text", "address.street": "text", "address.district": "text",
+    // });
+
+    // collection.createIndex({
+    //   "location.coordinates": "2dsphere",
+    // });
+  }
 
   async createPlace(place: Partial<Omit<Place, '_id'>>): Promise<string> {
     const result = await this.collection.insertOne({
@@ -76,6 +89,25 @@ export class PlaceService {
     // Not works as expected, as hasNext() only returns false when return data is empty.
     // If there is still data, hasNext() still returns true
     return { data: results, hasNext: (hasNext && results.length === limit) };
+  }
+
+  async searchPlaces({q, page = 1, limit = 5, sort }: {q?: string, page?: number, limit?: number, sort?: { [x: string]: MongoDBSortOrder }} = {}): Promise<{ data: Place[], hasNext: boolean }> {
+    // Copy-paste from getPlaces. Add "q" argument for query
+    console.log("Calling searchPlaces() with arguments: ", { page, limit, sort });
+
+    const skip = (page - 1) * limit;
+    const consistentSort = { ...(sort ?? {}) } as Sort;
+
+    const resultCursor = this.collection.find({$text: {$search: q!, $caseSensitive: false}}).sort(consistentSort).skip(skip).limit(limit);
+    const nextCursor = resultCursor.clone();
+    const [results, hasNext] = await Promise.all([resultCursor.toArray(), nextCursor.hasNext()]);
+
+    return { 
+      data: results, hasNext: (
+          hasNext 
+          && results.length === limit
+        ) 
+    };
   }
 
   // async getPlaces(options: GetPlacesOptions = {}): Promise<Place[]> {

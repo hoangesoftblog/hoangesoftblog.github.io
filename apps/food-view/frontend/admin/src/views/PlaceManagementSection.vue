@@ -4,8 +4,13 @@
         <!-- List View -->
         <div class="mt-8 mb-4 flex flex-row items-center">
             <h2 class="text-2xl font-bold mb-4 grow">Places Management</h2>
-            <div class="flex items-center mb-4">
-                <button @click="addBtnClick()" class="bg-blue-500 text-white py-2 px-4 rounded">Add place</button>
+            <div class="flex items-center mb-4 gap-2">
+                <form class="py-2" @submit.prevent="search">
+                    <!-- Todo: Throttle & debounce -->
+                    <input v-model="query" class="border-2 py-2 px-2 mr-2" type="text"/>
+                    <button type="submit" class="py-2 border-2 px-2">Search</button>
+                </form>
+                <button @click="addBtnClick()" class="bg-blue-500 text-white py-2 px-4 rounded">+</button>
             </div>
         </div>
 
@@ -92,10 +97,11 @@ import PaginationComponent from "@/components/pagination.vue";
 import PlaceForm from "@/components/PlaceForm/PlaceForm.vue";
 import PlaceDetail from '@/components/PlaceDetail/PlaceDetail.vue';
 
-type SortOrder = 1 | -1;
+type SortDirection = 1 | -1;
+type SortOrder = { column: string | null, direction: SortDirection };
 type FormMode = "add" | "edit" | "";
 
-function parseSortOrder(config: any, sort: { column: string | null, direction: number }) {
+function parseSortOrder(config: any, sort: SortOrder) {
     if (sort.column != null) {
         config["sort"] = `${sort.direction == -1 ? "-" : ""}${sort.column}`
     }
@@ -114,9 +120,10 @@ export default defineComponent({
             places: [] as Place[], // Define the Place interface (to be created),  
             limit: 5,
             page: 1,
+            query: undefined as string | undefined,
             hasNext: true,
             // // Sorting config
-            sortConfig: {column: null, direction: 1,} as { column: string | null, direction: SortOrder },
+            sortConfig: {column: null, direction: 1,} as SortOrder,
             // PlaceForm.vue
             formMode: "" as FormMode,
             placeToEdit: undefined as Place | undefined,
@@ -145,13 +152,18 @@ export default defineComponent({
         this.fetchPlaces();
     },
     methods: {
-        async fetchPlaces() {
+        async fetchPlaces({q, page=1, limit=5, sort}: {q?: string, page?: number, limit?: number, sort?: SortOrder} = {}) {
             console.log(`Fetching places for page ${this.page}`);
 
             const configAfter = parseSortOrder({
-                page: this.page,
-                limit: this.limit,
-            }, this.sortConfig);
+                page: page,
+                limit: limit,
+            }, sort ?? {column: null, direction: 1});
+
+            if (q) {
+                configAfter["q"] = q;
+            }
+
             const urlSearchParams = new URLSearchParams(configAfter);
 
             try {
@@ -163,6 +175,14 @@ export default defineComponent({
             } catch (error) {
                 console.error('Error fetching places:', error);
             }
+        },
+        async search() {
+            this.fetchPlaces({
+                q: this.query,
+                limit: this.limit,
+                page: this.page,
+                sort: this.sortConfig,
+            })
         },
         async editPlace(place: Place) {
             console.log("Edit Place:", place);
@@ -301,15 +321,22 @@ export default defineComponent({
         },
         sortConfig: {
             deep: true,
+            handler: "fetchPlaces",
+            // immediate: true,
+            
             // handler: function() {
             //     this.searchConfig = {
             //         page: this.page,
             //         sort: this.sortConfig,
             //         limit: this.limit,
             //     }
-            // }
-            handler: "fetchPlaces"
+            // },
         },
+        limit: {
+            handler: function() {
+                this.fetchPlaces({limit: this.limit})
+            },
+        }
         // searchConfig() {
         //     this.fetchPlaces();
         // }
