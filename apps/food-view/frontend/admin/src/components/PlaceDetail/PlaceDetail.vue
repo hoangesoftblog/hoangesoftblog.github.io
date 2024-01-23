@@ -34,7 +34,11 @@
                 </div>
                 <div class="place-details mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ place.name }}</h3>
-                    <p class="text-gray-600 mb-1">Category: <span class="text-gray-700">{{ place.category }}</span></p>
+                    <p class="text-gray-600 mb-1">Category: 
+                        <div class="inline-box text-gray-700 p-2"> 
+                            {{ place.category }}
+                        </div>
+                    </p>
                     <p class="text-gray-600 mb-1">Address: <span class="text-gray-700">{{ place.address.street }}, {{
                         place.address.district }}, {{ place.address.city }}</span></p>
                     <p class="text-gray-600">Opening Hours: <span class="text-gray-700">{{ place.openingHours.start }} - {{
@@ -50,8 +54,14 @@
                 <h2 class="text-3xl font-bold text-gray-900">Details</h2>
                 <div class="mt-2 px-7 py-3">
                     <h3 class="text-xl font-semibold text-gray-700">{{ place.name }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">Category: <span class="text-gray-700">{{ place.category
-                    }}</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Category: 
+                        <div class="inline-block text-gray-700">
+                            <!-- <div class="inline-block px-2 py-0.5 rounded-full text-slate-100 bg-red-400">
+                                {{ place.category}}
+                            </div> -->
+                            <badge>{{ place.category}}</badge>
+                        </div>
+                    </p>
                     <p class="text-sm text-gray-500 mt-1">Address: <span class="text-gray-700">{{ place.address.street
                     }}, {{ place.address.district }}, {{ place.address.city }}</span></p>
                     <p class="text-sm text-gray-500 mt-1">Opening Hours: <span class="text-gray-700">{{
@@ -134,8 +144,12 @@
 </style>
 <script lang="ts">
 import { type Place } from '@/models';
+import Badge from "@/components/Badge/Badge.vue";
 
 export default {
+    components: {
+        Badge
+    },
     props: {
         place: {
             type: Object,
